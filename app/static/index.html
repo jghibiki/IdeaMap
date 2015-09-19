@@ -7,17 +7,29 @@
 
         <meta http-equiv="PRAGMA" content="NO-CACHE">
         <meta http-equiv="CACHE-CONTROL" content="NO-CACHE">
-
-        <!-- egg.js -- >
-        <script type="text/javascript" src="js/third/egg.min.js"></script>
+        <meta name="viewport" content="initial-scale=1.0">
+        <meta charset="utf-8">
 
         <!-- require.js entrypoint -->
         <script type="text/javascript" data-main="js/main" src="js/third-party/require.js"></script>
+        <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBzoP8xZO2S909yMs-BBjboPJgMQWqBm6s&signed_in=true"></script>
 
         <!-- css files -->
-        <link rel="stylesheet" type="text/css" href="static-css/ionicons.min.css"/>
-        <link rel="stylesheet" href="third-party-css/pure-min.css">
+        <link rel="stylesheet" type="text/css" href="css/screen.css">
+        <link rel="stylesheet" type="text/css" href="css/pure-min.css">
+    
     </head>
     <body>
+        <div class="pure-g fullSize">
+            <div class="pure-u-3-4 fullSize">
+                <!-- ko content: contentViewModel -->
+                Loading...
+                <!-- /ko -->
+            </div>
+            <div class="pure-u-1-4">
+                <!-- ko content: sidePaneViewModel -->
+                <!-- /ko -->
+            </div>
+        </div>
     </body>
 </html>

@@ -2,10 +2,9 @@ from flask import Flask, request, jsonify, send_from_directory, url_for
 from flask.ext.cors import CORS
 from werkzeug.contrib.fixers import ProxyFix
 from nocache import nocache
-import sys, os
+import sys, os, json, datetime
 sys.path.insert(0, os.path.abspath("../models"))
 from Models import *
-import json
 
 ##################
 ## Server Setup ##
@@ -35,7 +34,16 @@ def GetTweets():
 
 @app.route('/')
 def root():
-    return app.send_static_file('index.html')
+    return send_index()
+
+def send_index():
+
+        response = app.make_response(app.send_static_file('index.html'))
+
+        response.headers.add('Last-Modified', datetime.datetime.now())
+        response.headers.add('Cache-Control', 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0')
+        response.headers.add('Pragma', 'no-cache')
+        return response
 
 
 if __name__ == "__main__":
