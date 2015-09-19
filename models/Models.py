@@ -13,6 +13,7 @@ class Tweet(BaseModel):
     created_at = DateTimeField()
     coordinates = TextField()
     text = TextField()
+    original = TextField()
 
 class ProcessedTweet(BaseModel):
     id = PrimaryKeyField()
@@ -22,6 +23,7 @@ class ProcessedTweet(BaseModel):
     created_at = DateTimeField()
     coordinates = TextField()
     text = TextField()
+    original = TextField()
     rating = IntegerField()
 
 
