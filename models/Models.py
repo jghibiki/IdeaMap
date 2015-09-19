@@ -12,7 +12,6 @@ class Tweet(BaseModel):
     entities = TextField()
     created_at = DateTimeField()
     coordinates = TextField()
-    hasGeo = BooleanField()
     text = TextField()
 
 class ProcessedTweet(BaseModel):
@@ -22,7 +21,6 @@ class ProcessedTweet(BaseModel):
     process_date = DateTimeField()
     created_at = DateTimeField()
     coordinates = TextField()
-    hasGeo = BooleanField()
     text = TextField()
     rating = IntegerField()
 
