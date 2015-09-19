@@ -1,22 +1,25 @@
-define(["ko"], function(ko){
+define(["ko", "mapWrapper"], function(ko, mapWrapperModule){
 
     function ContentViewModel(){
         var self = this;
 
         self._shown = false;
         self._disposed = false;
-        self._map = null;
+        self.map = mapWrapperModule.get().map;
 
         self.shown = function(){
             if(!self._shown){
 
-                self._map = new google.maps.Map(document.getElementById('map'));
+                var map = new google.maps.Map(document.getElementById('map')) ;
 
                 var bounds = new google.maps.LatLngBounds(
                     new google.maps.LatLng(25.82, -124.39),
                     new google.maps.LatLng(49.38, -66.94)
                 )
-                self._map.fitBounds(bounds);
+
+                map.fitBounds(bounds);
+
+                self.map(map);
 
                 self._shown = true;
             }
@@ -31,8 +34,8 @@ define(["ko"], function(ko){
         self.dispose = function(){
             if(!self._disposed){
                 self.hidden();
-                self._map = null;
-                self._dispoed = true;
+                self.map(null);
+                self._disposed = true;
             }
         }
     }

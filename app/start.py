@@ -20,6 +20,7 @@ def GetTweets():
     tweets = []
     for tweet in ProcessedTweet.select().order_by(ProcessedTweet.created_at):
         data = {
+                "id": tweet.id,
                 "entities": json.loads(tweet.entities),
                 "created_at": tweet.created_at,
                 "coordinates": tweet.coordinates,

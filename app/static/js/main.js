@@ -17,8 +17,7 @@ requirejs.config({
         "ko-content": "ko-plugins/ko-content",
 
         //third party scripts
-        "ko": "third-party/knockout-3.3.0",
-        "fetch": "third-party/fetch"
+        "ko": "third-party/knockout-3.3.0"
     },
     
     map: {
@@ -31,6 +30,8 @@ requirejs.config({
             //managers
             "singletonManager" : "managers/singleton-manager",
 
+            //wrappers
+            "mapWrapper" : "singleton!wrappers/map-wrapper"
         }
     }
 })

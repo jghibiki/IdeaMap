@@ -1,15 +1,42 @@
-define(["ko"], function(ko){
+define(["ko", "mapWrapper"], function(ko, MapWrapperModule){
 
     function SidePanelViewModel(){
         var self = this;
 
         self._shown = false;
         self._disposed = false;
-        self._map = null;
+
+        self.map = MapWrapperModule.get().map;
+        self.tweets = ko.observableArray([])
+        self.tweetFeatureMap = []
+
+        self.tweetSubscription = self.tweets.subscribe(function(changedTweets){
+            changedTweets.forEach(function(change){
+                if(change.status === "added"){
+                    tweetFeatureMap.push((
+                        change.value.id, 
+                        self.map().data.addGeoJson({
+                            "type": "Feature",
+                            "geometry": change.value.coordinate
+                        })
+                    ))
+                }
+                else if(change.status === "deleted"){
+                    for(var tuple in tweetFeatureMap){
+                        if(tuple[0] === change.value.text){
+                            self.map().data.remove(tuple[1]);
+                            break;
+                        }
+                    }
+                }
+            });
+        }, null, "arrayChange");
+
 
         self.shown = function(){
             if(!self._shown){
-
+                
+                self.getTweets();
                 self._shown = true;
             }
         }
@@ -26,6 +53,15 @@ define(["ko"], function(ko){
                 self._map = null;
                 self._dispoed = true;
             }
+        }
+
+        self.getTweets = function(){
+            window.fetch("/tweets")
+                .then(function(response){
+                    for(tweet in response.json()["result"]){
+                        self.tweets.push(tweet);
+                    }
+                })
         }
     }
 
