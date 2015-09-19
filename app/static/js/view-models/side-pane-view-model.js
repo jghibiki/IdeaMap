@@ -6,6 +6,9 @@ define(["ko", "mapWrapper"], function(ko, MapWrapperModule){
         self._shown = false;
         self._disposed = false;
 
+        self._pos = new google.maps.MarkerImage("http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|5AB300")
+        self._neg = new google.maps.MarkerImage("http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|B30000")
+
         self.map = MapWrapperModule.get().map;
         self.tweets = ko.observableArray([])
         self.tweetFeatureMap = []
