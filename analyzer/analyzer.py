@@ -31,14 +31,15 @@ def classify(data):
     test_vectors = vectorizer.transform([data])
     prediction_liblinear = classifier_liblinear.predict(test_vectors)
     confidence = classifier_liblinear.decision_function(test_vectors)
-    return [prediction_liblinear, confidence]
+    return [prediction_liblinear[0], confidence]
 
 def prune_old_tweets():
     delta = datetime.timedelta(minutes=15)
     cutoff_time = datetime.datetime.utcnow() - delta
     if ProcessedTweet.select().where(ProcessedTweet.process_date < cutoff_time) > 0:
          for prow in ProcessedTweet.select().where(ProcessedTweet.process_date < cutoff_time):
-            print prow.process_date
+            with db.atomic():
+                prow.delete_instance()
 
 def usage():
     print("Usage:")

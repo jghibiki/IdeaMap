@@ -6,7 +6,9 @@ define(["ko", "mapWrapper", "chain"], function(ko, MapWrapperModule, chain){
         self._shown = false;
         self._disposed = false;
         self._loading = false;
-        self._timer = null;
+        self._deleting = false;
+        self._loadTimer = null;
+        self._deleteTimer = null;
 
         self._pos = new google.maps.MarkerImage("http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|5AB300")
         self._neg = new google.maps.MarkerImage("http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|B30000")
@@ -39,9 +41,10 @@ define(["ko", "mapWrapper", "chain"], function(ko, MapWrapperModule, chain){
                         })
 
                         self.tweetFeatureMap.push((
-                            change.value.id, 
+                            change.value, 
                             marker
                         ))
+                        //change tweetFeatureMap to be observable so that we can modify the polyline set when this is modified
                     }
                 }
                 else if(change.status === "deleted"){
@@ -60,6 +63,9 @@ define(["ko", "mapWrapper", "chain"], function(ko, MapWrapperModule, chain){
             if(!self._shown){
                 
                 self.getTweets();
+                
+                self._loadTimer = setInterval(self.getTweets, 300000);
+                self._deleteTimer = setInterval(self.deleteTweets, 60000);
                 self._shown = true;
             }
         }
@@ -67,6 +73,9 @@ define(["ko", "mapWrapper", "chain"], function(ko, MapWrapperModule, chain){
         self.hidden = function(){
             if(self._shown){
                 self._shown = false;
+
+                clearTimer(self._loadTimer);
+                clearTimer(self._deleteTimer);
             } 
         }
 
@@ -82,7 +91,7 @@ define(["ko", "mapWrapper", "chain"], function(ko, MapWrapperModule, chain){
             if(!self._loading){
                 self._loading = true;
                 chain.get()
-                    .cc(function(context, error, next){
+                    .cc(function(context, abort, next){
                         $.ajax({
                             url: "/tweets/0",
                             type: "GET",
@@ -93,7 +102,7 @@ define(["ko", "mapWrapper", "chain"], function(ko, MapWrapperModule, chain){
                             },
                             error: function(error){
                                 self._loading = false;
-                                error();
+                                abort();
                             }
                         });
                 })
@@ -115,9 +124,9 @@ define(["ko", "mapWrapper", "chain"], function(ko, MapWrapperModule, chain){
             }
         }
 
-        self._getMoreTweets = function(context, error, next){
+        self._getMoreTweets = function(context, abort, next){
             $.ajax({
-                url: "/tweets/0",
+                url: "/tweets/"+context.page,
                 type: "GET",
                 dataType: "json",
                 success: function(response){
@@ -126,7 +135,7 @@ define(["ko", "mapWrapper", "chain"], function(ko, MapWrapperModule, chain){
                 },
                 error: function(error){
                     self._loading = false;
-                    error()
+                    abort()
                 }
             });
         }
@@ -142,6 +151,21 @@ define(["ko", "mapWrapper", "chain"], function(ko, MapWrapperModule, chain){
                     .cc(self._processMoreTweets)
             }
             next(context); 
+        }
+        
+        self.deleteTweets = function(){
+            if (!self._deleting){
+                self._deleting = true;
+                for(var i =0; i < self.tweets().length; i++){
+                    newDate = new Date().getTime();
+                    oldDate = new Date(newDate-15*60000);
+                    console.log(self.tweets()[i].processed_date);
+                    console.log(oldDate);
+                    if(self.tweets()[i].processed_date < oldDate){
+                        self.tweets().remove(self.tweets()[i]);
+                    }
+                }
+            }
         }
     }
 
