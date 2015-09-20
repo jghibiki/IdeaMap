@@ -1,6 +1,6 @@
 from peewee import *
 
-db = SqliteDatabase('../twitter.db')
+db = PostgresqlDatabase("leet_tweets", user="tweet_is_leet", password="leet_is_tweet")
 
 class BaseModel(Model):
     class Meta:
