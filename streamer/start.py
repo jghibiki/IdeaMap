@@ -4,8 +4,10 @@ sys.path.insert(0, os.path.abspath("../models"))
 from Models import *
 from tweepy import OAuthHandler
 from tweepy import Stream
-import tweepy
+import tweepy, datetime
 from string import punctuation
+from multiprocessing import Process, Queue
+from time import sleep
 
 
 
@@ -85,7 +87,20 @@ def preprocess(data):
     return data
 
 
+
+def CleanDb(q):
+    while True:
+        delta = datetime.datetime.utcnow() - datetime.timedelta(minutes=15)
+        with db.atomic():
+            Tweet.delete().where(Tweet.created_at < delta).execute()
+        sleep(5)
+
 if __name__ == '__main__':
+
+    #spawn db cleaner
+    q = Queue()
+    p = Process(target=CleanDb, args=(q,))
+    p.start()
 
     #This handles Twitter authetification and the connection to Twitter Streaming API
     listener = StreamListener()
