@@ -26,18 +26,19 @@ class StreamListener(tweepy.StreamListener):
         if not "delete" in data:
             if "lang" in data:
                 if data["lang"] == "en":
-                    with db.atomic():
-                        data = preprocess(data)
+                    if data["coordinates"] != None:
+                        with db.atomic():
+                            data = preprocess(data)
 
-                        row = Tweet.create(
-                            entities = json.dumps(data["entities"]),
-                            created_at = datetime.datetime.strptime(data["created_at"], '%a %b %d %H:%M:%S +0000 %Y').replace(tzinfo=pytz.UTC),
-                            coordinates = json.dumps(data["coordinates"]),
-                            text = data["text"],
-                            original = data["original"]
-                        )
-                        print row.id
-                    return True
+                            row = Tweet.create(
+                                entities = json.dumps(data["entities"]),
+                                created_at = datetime.datetime.strptime(data["created_at"], '%a %b %d %H:%M:%S +0000 %Y').replace(tzinfo=pytz.UTC),
+                                coordinates = json.dumps(data["coordinates"]),
+                                text = data["text"],
+                                original = data["original"]
+                            )
+                            print row.id
+                        return True
 
     def on_error(self, status):
         print status

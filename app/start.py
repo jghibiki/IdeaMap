@@ -23,6 +23,7 @@ def GetTweets(page):
                 "id": tweet.id,
                 "entities": json.loads(tweet.entities),
                 "created_at": tweet.created_at,
+                "processed_date": tweet.process_date,
                 "coordinates": json.loads(tweet.coordinates),
                 "text": tweet.text,
                 "rating": tweet.rating,
