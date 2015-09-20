@@ -28,6 +28,29 @@
             <div>
                 <em>Click on a marker to view tweet data.</em>
             </div>
-        <!-- /ko -->
+            <!-- /ko -->
+            <div>
+                <h3>Filters:</h3>
+            </div>
+            <div>
+                <form action="filter.js">
+                Polarity:
+                <select name="polarity">
+                    <option value="both">Both</option>
+                    <option value="posonly">Positive Only</option>
+                    <option value="negonly">Negative Only</option>
+                    </select>
+                    <input type="submit">
+                <div>
+                    Tags: <input type=text placeholder="separate multiple tags with ;" name="label1">
+                </div>
+                confidence level: <br>
+                <input id="confidence" type ="range" min ="0" max="1" step =".05" value ="100" onchange="printValue('confidence','rangeValue1')"/>
+                <input id="rangeValue1" type="text" size="2">
+                <div>
+                    <input type=submit name="submitFilters">
+                </div>
+        </form>
+            </div>
     </div>
 </div>
