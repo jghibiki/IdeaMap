@@ -14,24 +14,32 @@ app.wsgi_app = ProxyFix(app.wsgi_app)
 CORS(app, headers=['Content-Type'])
 
 
-@app.route("/tweets", methods=["GET"])
+@app.route("/tweets/<int:page>", methods=["GET"])
 @nocache
-def GetTweets():
+def GetTweets(page):
     tweets = []
-    for tweet in ProcessedTweet.select().order_by(ProcessedTweet.created_at):
+    for tweet in ProcessedTweet.select().order_by(ProcessedTweet.created_at).paginate(page-1, 100):
         data = {
                 "id": tweet.id,
                 "entities": json.loads(tweet.entities),
                 "created_at": tweet.created_at,
-                "coordinates": tweet.coordinates,
+                "coordinates": json.loads(tweet.coordinates),
                 "text": tweet.text,
-                "rating": tweet.rating
+                "rating": tweet.rating,
+                "classification": tweet.classification
         }
+        tweets.append(data)
 
-        with db.atomic():
-            tweet.delete_instance()
+    numberOfPages = (ProcessedTweet.select().count() / 100)
+    nextLoad = None if numberOfPages <= page+1  else page+1
 
-    return jsonify({"result": tweets})
+    return jsonify({"result": tweets, "next": nextLoad})
+
+@app.route("/tweets/count", methods=["GET"])
+@nocache
+def CountTweets():
+    tweetCount = ProcessedTweet.select().count()
+    return jsonify({"result": tweetCount})
 
 @app.route('/')
 def root():

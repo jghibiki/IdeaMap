@@ -1,7 +1,7 @@
 requirejs.config({
     baseUrl: "js",
 
-    deps:["bootstrapper"],
+    deps:["bootstrapper", "jquery"],
 
     paths: {
 
@@ -17,7 +17,10 @@ requirejs.config({
         "ko-content": "ko-plugins/ko-content",
 
         //third party scripts
-        "ko": "third-party/knockout-3.3.0"
+        "ko": "third-party/knockout-3.3.0",
+
+        //utils
+        "chain": "utils/chain"
     },
     
     map: {
