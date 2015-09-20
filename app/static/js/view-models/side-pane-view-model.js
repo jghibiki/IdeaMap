@@ -19,7 +19,86 @@ define(["ko", "mapWrapper", "chain"], function(ko, MapWrapperModule, chain){
         self.tweetFeatureMap = []
 
         self.selectedTweet = ko.observable()
+        self.selectedTweetTags = ko.computed(function(){
+            if(self.selectedTweet() !== null && self.selectedTweet() !== undefined){
+                var tags = ""
+                for(var x=0; x< self.selectedTweet().entities.hashtags.length; x++){
+                    tags = (tags + "#" + self.selectedTweet().entities.hashtags[x].text + " ");
+                }
+                return tags
+            }
+            return "No tags."
+        });
 
+        self.polarityFilter = ko.observable()
+        self.tagFilterRaw = ko.observable("")
+        self.tagFilter = ko.computed(function(){
+            if(self.tagFilterRaw() !== undefined 
+                || self.tagFilterRaw() !== null){
+                return self.tagFilterRaw().replace("#", "").replace(" ", "").split(",");
+            }
+            else{
+                return null;
+            }
+        })
+
+        self.polarityFilterSubscription = self.polarityFilter.subscribe(function(value){
+            for(var x=0; x < self.tweetFeatureMap.length; x++){
+                if(value !== "both"){
+                    if(self.tweetFeatureMap[x].tweet.classification !== value){
+                        self.tweetFeatureMap[x].marker.setMap(null);
+                    }
+                    if(self.tweetFeatureMap[x].tweet.classification === value){
+                        self.tweetFeatureMap[x].marker.setMap(self.map());
+                    }
+                }
+                else{
+                    self.tweetFeatureMap[x].marker.setMap(self.map());
+                }
+            }
+        });
+
+        self.tagFilterSubscription = self.tagFilter.subscribe(function(value){
+            if(value !== null && value !== undefined && value.length > 0){
+                for(var x=0; x<self.tweetFeatureMap.length; x++){
+                    var hasTag = false;
+                    for(var y=0; y<self.tweetFeatureMap[x].tweet.entities.hashtags.length; y++){
+                        for(var z=0; z<value.length; z++){
+                            if(self.tweetFeatureMap[x].tweet.entities.hashtags[y] === value[z]){
+                                hasTag = true;
+                                break;
+                            }
+                        }
+                        if(hasTag){
+                            break;
+                        }
+                    }
+                    if(hasTag){
+                        self.tweetFeatureMap[x].marker.setMap(self.map());
+                    }
+                    else{
+                        self.tweetFeatureMap[x].marker.setMap(null);
+                    }
+                }
+            }
+        });
+
+
+        self.confidenceRatingFilter = ko.observable(0)
+
+        self.confidenceRatingFilterSubscription = self.confidenceRatingFilter.subscribe(function(value){
+            var numVal = Number(value); 
+
+            for(var x=0; x<self.tweetFeatureMap.length; x++){
+                if(Math.abs(self.tweetFeatureMap[x].tweet.rating) >= numVal){
+                    self.tweetFeatureMap[x].marker.setMap(self.map());
+                }
+                else{
+                    self.tweetFeatureMap[x].marker.setMap(null); 
+                }
+            }
+        }); 
+    
 
         self.tweetSubscription = self.tweets.subscribe(function(changedTweets){
             changedTweets.forEach(function(change){
