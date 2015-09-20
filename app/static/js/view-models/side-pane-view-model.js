@@ -10,6 +10,7 @@ define(["ko", "mapWrapper", "chain"], function(ko, MapWrapperModule, chain){
         self._loadTimer = null;
         self._deleteTimer = null;
 
+
         self._pos = new google.maps.MarkerImage("http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|5AB300")
         self._neg = new google.maps.MarkerImage("http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|B30000")
 
@@ -17,16 +18,19 @@ define(["ko", "mapWrapper", "chain"], function(ko, MapWrapperModule, chain){
         self.tweets = ko.observableArray([])
         self.tweetFeatureMap = []
 
+        self.selectedTweet = ko.observable()
+
+
         self.tweetSubscription = self.tweets.subscribe(function(changedTweets){
             changedTweets.forEach(function(change){
                 if(change.status === "added"){
                     if(!(change.value in self.tweets())){
 
                         var icon = null;
-                        if(change.classification === "pos"){
+                        if(change.value.classification === "pos"){
                             icon = self._pos; 
                         }
-                        else if (change.classification == "neg"){
+                        else if (change.value.classification == "neg"){
                             icon = self._neg;
                         }
                         else{
@@ -40,17 +44,20 @@ define(["ko", "mapWrapper", "chain"], function(ko, MapWrapperModule, chain){
                             icon: icon
                         })
 
-                        self.tweetFeatureMap.push((
-                            change.value, 
-                            marker
-                        ))
+                        marker.addListener("click", self.selectTweet);
+
+                        self.tweetFeatureMap.push({
+                            tweet: change.value, 
+                            marker: marker
+                        })
                         //change tweetFeatureMap to be observable so that we can modify the polyline set when this is modified
                     }
                 }
                 else if(change.status === "deleted"){
-                    for(var tuple in self.tweetFeatureMap){
-                        if(tuple[0] === change.value.text){
-                            self.map().data.remove(tuple[1]);
+                    for(var x=0; x < self.tweetFeatureMap.length; x++){
+                        if(self.tweetFeatureMap[x].tweet  === change.value){
+                            self.tweetFeatureMap[x].marker.setMap(null);
+                            self.tweetFeatureMap.slice(x, 1);
                             break;
                         }
                     }
@@ -64,8 +71,8 @@ define(["ko", "mapWrapper", "chain"], function(ko, MapWrapperModule, chain){
                 
                 self.getTweets();
                 
-                self._loadTimer = setInterval(self.getTweets, 1000);
-                self._deleteTimer = setInterval(self.deleteTweets, 1000);
+                self._loadTimer = setInterval(self.getTweets, 60000);
+                self._deleteTimer = setInterval(self.deleteTweets, 60000);
                 self._shown = true;
             }
         }
@@ -109,6 +116,7 @@ define(["ko", "mapWrapper", "chain"], function(ko, MapWrapperModule, chain){
                 .cc(function(context, error, next){
                     var json = context.response
                     for(tweet in json["result"]){
+                        json["result"][tweet].process_date = new Date(Date(json["result"][tweet].process_date)) 
                         self.tweets.push(json["result"][tweet]);
                     }
                     if(json["next"] !== null && json["next"] !== undefined){
@@ -145,6 +153,7 @@ define(["ko", "mapWrapper", "chain"], function(ko, MapWrapperModule, chain){
         self._processMoreTweets = function(context, error, next){
             var json = context.response
             for(tweet in json["result"]){
+                json["result"][tweet].process_date = new Date(Date(json["result"][tweet].process_date)) 
                 self.tweets.push(json["result"][tweet]);
             }
             if(json["next"] !== null && json["next"] !== undefined){
@@ -160,17 +169,29 @@ define(["ko", "mapWrapper", "chain"], function(ko, MapWrapperModule, chain){
         self.deleteTweets = function(){
             if (!self._deleting){
                 self._deleting = true;
+                console.log("Deleting expired tweets.");
                 for(var i =0; i < self.tweets().length; i++){
                     newDate = new Date().getTime();
                     oldDate = new Date(newDate-10000);
-                    console.log(self.tweets()[i].process_date);
-                    console.log(oldDate);
-                    if(new Date(Date(self.tweets()[i].process_date)).getTime() < oldDate.getTime()){
-                        self.tweets().remove(self.tweets()[i]);
+                    if(self.tweets()[i].process_date.getTime() < oldDate.getTime()){
+                        self.tweets.remove(self.tweets()[i]);
                     }
                 }
                 self._deleting = false;
             }
+        }
+
+        self.selectTweet = function(){
+            for(var x=0; x< self.tweetFeatureMap.length; x++){
+                if(self.tweetFeatureMap[x].marker === this){
+                    self.selectedTweet(self.tweetFeatureMap[x].tweet);
+                    break;
+                }
+            }
+        }
+
+        self.clearSelectedTweet = function(){
+            self.selectedTweet(null);
         }
     }
 
