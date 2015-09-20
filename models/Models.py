@@ -24,7 +24,8 @@ class ProcessedTweet(BaseModel):
     coordinates = TextField()
     text = TextField()
     original = TextField()
-    rating = IntegerField()
+    rating = FloatField()
+    classification = TextField()
 
 
 

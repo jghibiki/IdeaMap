@@ -58,3 +58,10 @@ target/
 .virtualenv
 *.json
 *.db
+
+*.txt
+*.csv
+txt_sentoken/*
+tweet_training.csv
+testtweets/*
+tweetraining.csv
