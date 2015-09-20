@@ -34,7 +34,7 @@ def classify(data):
     return [prediction_liblinear[0], confidence]
 
 def prune_old_tweets():
-    delta = datetime.timedelta(minutes=15)
+    delta = datetime.timedelta(minutes=1)
     cutoff_time = datetime.datetime.utcnow() - delta
     if ProcessedTweet.select().where(ProcessedTweet.process_date < cutoff_time) > 0:
          for prow in ProcessedTweet.select().where(ProcessedTweet.process_date < cutoff_time):

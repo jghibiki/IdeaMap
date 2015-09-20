@@ -64,8 +64,8 @@ define(["ko", "mapWrapper", "chain"], function(ko, MapWrapperModule, chain){
                 
                 self.getTweets();
                 
-                self._loadTimer = setInterval(self.getTweets, 300000);
-                self._deleteTimer = setInterval(self.deleteTweets, 60000);
+                self._loadTimer = setInterval(self.getTweets, 1000);
+                self._deleteTimer = setInterval(self.deleteTweets, 1000);
                 self._shown = true;
             }
         }
@@ -112,11 +112,13 @@ define(["ko", "mapWrapper", "chain"], function(ko, MapWrapperModule, chain){
                         self.tweets.push(json["result"][tweet]);
                     }
                     if(json["next"] !== null && json["next"] !== undefined){
-                        context.page = json["next"];
-                        context.chain.cc(self._getMoreTweets)
+                        chain.get().cc(self._getMoreTweets)
                             .cc(self._processMoreTweets)
+                            .end({"page": json["next"]}, function(){
+                                next();
+                            });
                     }
-                    next(context);
+                    next();
                 })
                 .end({}, function(){
                     self._loading = false;   
@@ -146,11 +148,13 @@ define(["ko", "mapWrapper", "chain"], function(ko, MapWrapperModule, chain){
                 self.tweets.push(json["result"][tweet]);
             }
             if(json["next"] !== null && json["next"] !== undefined){
-                context.page = json["next"];
-                context.chain.cc(self._getMoreTweets)
+                chain.get().cc(self._getMoreTweets)
                     .cc(self._processMoreTweets)
+                    .end({"page": json["next"]}, function(){
+                        next();
+                    });
             }
-            next(context); 
+            next(); 
         }
         
         self.deleteTweets = function(){
@@ -158,13 +162,14 @@ define(["ko", "mapWrapper", "chain"], function(ko, MapWrapperModule, chain){
                 self._deleting = true;
                 for(var i =0; i < self.tweets().length; i++){
                     newDate = new Date().getTime();
-                    oldDate = new Date(newDate-15*60000);
-                    console.log(self.tweets()[i].processed_date);
+                    oldDate = new Date(newDate-10000);
+                    console.log(self.tweets()[i].process_date);
                     console.log(oldDate);
-                    if(self.tweets()[i].processed_date < oldDate){
+                    if(new Date(Date(self.tweets()[i].process_date)).getTime() < oldDate.getTime()){
                         self.tweets().remove(self.tweets()[i]);
                     }
                 }
+                self._deleting = false;
             }
         }
     }
