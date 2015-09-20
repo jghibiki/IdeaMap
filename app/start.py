@@ -18,7 +18,7 @@ CORS(app, headers=['Content-Type'])
 @nocache
 def GetTweets(page):
     tweets = []
-    for tweet in ProcessedTweet.select().order_by(ProcessedTweet.created_at).paginate(page-1, 100):
+    for tweet in ProcessedTweet.select().order_by(ProcessedTweet.created_at).paginate(page if page is 0 else page-1, 100):
         data = {
                 "id": tweet.id,
                 "entities": json.loads(tweet.entities),
