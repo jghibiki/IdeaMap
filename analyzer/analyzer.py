@@ -88,4 +88,6 @@ if __name__ == '__main__':
                     trow.delete_instance()
                 prune_old_tweets()
         prune_old_tweets()
+        time.sleep(1)
+
 
