@@ -65,3 +65,5 @@ txt_sentoken/*
 tweet_training.csv
 testtweets/*
 tweetraining.csv
+*.pkl
+*.npy
