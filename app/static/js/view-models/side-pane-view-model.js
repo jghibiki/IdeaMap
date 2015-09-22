@@ -6,7 +6,6 @@ define(["ko", "mapWrapper", "chain"], function(ko, MapWrapperModule, chain){
         self._shown = false;
         self._disposed = false;
         self._loading = false;
-        self._deleting = false;
         self._loadTimer = null;
         self._deleteTimer = null;
 
@@ -136,7 +135,8 @@ define(["ko", "mapWrapper", "chain"], function(ko, MapWrapperModule, chain){
                     for(var x=0; x < self.tweetFeatureMap.length; x++){
                         if(self.tweetFeatureMap[x].tweet  === change.value){
                             self.tweetFeatureMap[x].marker.setMap(null);
-                            self.tweetFeatureMap.slice(x, 1);
+                            mapping = self.tweetFeatureMap.slice(x, 1);
+                            delete mapping;
                             break;
                         }
                     }
@@ -151,7 +151,6 @@ define(["ko", "mapWrapper", "chain"], function(ko, MapWrapperModule, chain){
                 self.getTweets();
                 
                 self._loadTimer = setInterval(self.getTweets, 60000);
-                self._deleteTimer = setInterval(self.deleteTweets, 60000);
                 self._shown = true;
             }
         }
@@ -178,6 +177,18 @@ define(["ko", "mapWrapper", "chain"], function(ko, MapWrapperModule, chain){
                 self._loading = true;
                 chain.get()
                     .cc(function(context, abort, next){
+                        console.log("Deleting expired tweets.");
+                        for(var i =0; i < self.tweets().length; i++){
+                            newDate = new Date().getTime();
+                            oldDate = new Date(newDate-10000);
+                            if(self.tweets()[i].process_date.getTime() < oldDate.getTime()){
+                                self.tweets.remove(self.tweets()[i]);
+                            }
+                }
+
+                    })
+                    .cc(function(context, abort, next){
+                        console.log("Loading new tweets.");
                         $.ajax({
                             url: "/tweets/0",
                             type: "GET",
@@ -245,20 +256,6 @@ define(["ko", "mapWrapper", "chain"], function(ko, MapWrapperModule, chain){
             next(); 
         }
         
-        self.deleteTweets = function(){
-            if (!self._deleting){
-                self._deleting = true;
-                console.log("Deleting expired tweets.");
-                for(var i =0; i < self.tweets().length; i++){
-                    newDate = new Date().getTime();
-                    oldDate = new Date(newDate-10000);
-                    if(self.tweets()[i].process_date.getTime() < oldDate.getTime()){
-                        self.tweets.remove(self.tweets()[i]);
-                    }
-                }
-                self._deleting = false;
-            }
-        }
 
         self.selectTweet = function(){
             for(var x=0; x< self.tweetFeatureMap.length; x++){
