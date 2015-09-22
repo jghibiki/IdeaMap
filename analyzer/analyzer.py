@@ -20,6 +20,7 @@ import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn import svm
 from sklearn.metrics import classification_report
+from sklearn.externals import joblib
 
 train_data = []
 train_labels = []
@@ -58,33 +59,46 @@ if __name__ == '__main__':
 
     classes = ['pos', 'neg']
 
-    # Read the data
-    print "loading training sets..."
-    with open('tweet_training.csv', 'rb') as training_file:
-        df = pd.read_csv(training_file, header=None)
-        df.columns = ['score', 'text']
-        train_labels = df['score'].values.tolist()
-        train_data = df['text'].values.tolist()
-    classes = ['pos', 'neg']
-    for curr_class in classes:
-        dirname = os.path.join("txt_sentoken/", curr_class)
-        for fname in os.listdir(dirname):
-            with open(os.path.join(dirname, fname), 'r') as f:
-                content = f.read()
-                train_data.append(content)
-                train_labels.append(curr_class)
+    vectorizer = None
+    if os.path.isfile("clf.pkl") and os.path.isfile("vct.pkl"):
+        print "Loading cached vectorizer and classifier"
+        vectorizer = joblib.load("vct.pkl")
+        classifier_liblinear = joblib.load("clf.pkl")
 
-    vectorizer = TfidfVectorizer(min_df=5,
-                                 max_df = 0.8,
-                                 sublinear_tf=True,
-                                 use_idf=True,
-                                 decode_error="ignore")
+    else:
+        # Read the data
+        print "loading training sets..."
+        with open('tweet_training.csv', 'rb') as training_file:
+            df = pd.read_csv(training_file, header=None)
+            df.columns = ['score', 'text']
+            train_labels = df['score'].values.tolist()
+            train_data = df['text'].values.tolist()
+        classes = ['pos', 'neg']
+        for curr_class in classes:
+            dirname = os.path.join("txt_sentoken/", curr_class)
+            for fname in os.listdir(dirname):
+                with open(os.path.join(dirname, fname), 'r') as f:
+                    content = f.read()
+                    train_data.append(content)
+                    train_labels.append(curr_class)
 
-    print "vectorizing training set..."
-    train_vectors = vectorizer.fit_transform(train_data)
-    print "training svm..."
-    # Train the classifier
-    classifier_liblinear.fit(train_vectors, train_labels)
+        vectorizer = TfidfVectorizer(min_df=5,
+                                     max_df = 0.8,
+                                     sublinear_tf=True,
+                                     use_idf=True,
+                                     decode_error="ignore")
+
+        print "vectorizing training set..."
+        train_vectors = vectorizer.fit_transform(train_data)
+        print "training svm..."
+        # Train the classifier
+        classifier_liblinear.fit(train_vectors, train_labels)
+
+        # cahce vectorizer and classifier
+        joblib.dump(classifier_liblinear, "clf.pkl")
+        joblib.dump(vectorizer, "vct.pkl")
+
+
 
     # Process tweets until someone kills this
     print "starting db loop..."
