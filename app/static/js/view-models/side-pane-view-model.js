@@ -14,7 +14,8 @@ define(["ko", "mapWrapper", "chain"], function(ko, MapWrapperModule, chain){
         self._neg = new google.maps.MarkerImage("http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|B30000")
 
         self.map = MapWrapperModule.get().map;
-        self.tweets = ko.observableArray([])
+        self.tweets = ko.observableArray([]);
+        self.tweets.extend({rateLimit: 1000});
         self.tweetFeatureMap = []
 
         self.selectedTweet = ko.observable()
@@ -45,14 +46,14 @@ define(["ko", "mapWrapper", "chain"], function(ko, MapWrapperModule, chain){
             for(var x=0; x < self.tweetFeatureMap.length; x++){
                 if(value !== "both"){
                     if(self.tweetFeatureMap[x].tweet.classification !== value){
-                        self.tweetFeatureMap[x].marker.setMap(null);
+                        self.tweetFeatureMap[x].marker.setVisible(false);
                     }
                     if(self.tweetFeatureMap[x].tweet.classification === value){
-                        self.tweetFeatureMap[x].marker.setMap(self.map());
+                        self.tweetFeatureMap[x].marker.setVisible(true);
                     }
                 }
                 else{
-                    self.tweetFeatureMap[x].marker.setMap(self.map());
+                    self.tweetFeatureMap[x].marker.setVisible(true);
                 }
             }
         });
@@ -126,7 +127,8 @@ define(["ko", "mapWrapper", "chain"], function(ko, MapWrapperModule, chain){
 
                         self.tweetFeatureMap.push({
                             tweet: change.value, 
-                            marker: marker
+                            marker: marker,
+                            animation: google.maps.Animation.DROP
                         })
                         //change tweetFeatureMap to be observable so that we can modify the polyline set when this is modified
                     }
@@ -184,8 +186,8 @@ define(["ko", "mapWrapper", "chain"], function(ko, MapWrapperModule, chain){
                             if(self.tweets()[i].process_date.getTime() < oldDate.getTime()){
                                 self.tweets.remove(self.tweets()[i]);
                             }
-                }
-
+                        }
+                        next();
                     })
                     .cc(function(context, abort, next){
                         console.log("Loading new tweets.");
