@@ -1,5 +1,5 @@
 # mport the necessary methods from tweepy library
-import json, sys, os, re, itertools, datetime, pytz
+import json, sys, os, re, itertools, datetime, pytz, signal
 sys.path.insert(0, os.path.abspath("../models"))
 from Models import *
 from tweepy import OAuthHandler
@@ -24,21 +24,47 @@ class StreamListener(tweepy.StreamListener):
     def on_data(self, _data):
         data = json.loads(_data)
         if not "delete" in data:
-            if "lang" in data:
-                if data["lang"] == "en":
-                    if data["coordinates"] != None:
-                        with db.atomic():
-                            data = preprocess(data)
+            if ("coordinates" in data and data["coordinates"] != None) or ("place" in data and data["place"] != None):
+                if "hiring" not in data["text"].lower() and "weather" not in data["text"].lower():
+                    with db.atomic():
+                        data = preprocess(data)
 
-                            row = Tweet.create(
-                                entities = json.dumps(data["entities"]),
-                                created_at = datetime.datetime.strptime(data["created_at"], '%a %b %d %H:%M:%S +0000 %Y').replace(tzinfo=pytz.UTC),
-                                coordinates = json.dumps(data["coordinates"]),
-                                text = data["text"],
-                                original = data["original"]
+                        coord = None
+
+                        if data["coordinates"] != None:
+                            coord = data["coordinates"]
+                        elif data["place"] != None:
+                            avgLng = (
+                                data["place"]["bounding_box"]["coordinates"][0][0][0] + \
+                                data["place"]["bounding_box"]["coordinates"][0][1][0] + \
+                                data["place"]["bounding_box"]["coordinates"][0][2][0] + \
+                                data["place"]["bounding_box"]["coordinates"][0][3][0]
                             )
-                            print row.id
-                        return True
+
+                            avgLat = (
+                                data["place"]["bounding_box"]["coordinates"][0][0][1] + \
+                                data["place"]["bounding_box"]["coordinates"][0][1][1] + \
+                                data["place"]["bounding_box"]["coordinates"][0][2][1] + \
+                                data["place"]["bounding_box"]["coordinates"][0][3][1]
+                            )
+
+                            coord = {
+                                "coordinates":[
+                                    avgLng, avgLat
+                                ],
+                                "type": "Point"
+                            }
+
+                        row = Tweet.create(
+                            entities = json.dumps(data["entities"]),
+                            created_at = datetime.datetime.strptime(data["created_at"], '%a %b %d %H:%M:%S +0000 %Y').replace(tzinfo=pytz.UTC),
+                            coordinates = json.dumps(coord),
+                            text = data["text"],
+                            original = data["original"]
+                        )
+                        print row.id
+
+        return True
 
     def on_error(self, status):
         print status
@@ -50,38 +76,38 @@ def preprocess(data):
     temp = data["text"]
     temp.lower()
 
+    temp.replace("rt", "retweet")
+    temp.replace("b/c", "because")
+    temp.replace("@reply", "")
+    temp.replace(" b ", " be ")
+    temp.replace("b4", "before")
+    temp.replace(" ab ", " about ")
+    temp.replace(" abt ", " about ")
+    temp.replace(" bfn ", " bye for now ")
+    temp.replace(" br ", " best reguards ")
+    temp.replace(" chk ", " check ")
+    temp.replace(" cld ", " could ")
+    temp.replace(" cre8 ", " create ")
+    temp.replace(" da ", " the ")
+    temp.replace(" dt ", " direct tweet ")
+    temp.replace(" em ", " email ")
+    temp.replace(" fab ", " fabulous ")
+    temp.replace(" fav ", " favorite ")
+    temp.replace(" ic ", " i see ")
+    temp.replace(" icymi ", " in case you missed it")
+    temp.replace(" idk ", " i don't know ")
+    temp.replace(" kk ", " that is nice ")
+    temp.replace(" selfie ", " a picture of myself ")
+    temp.replace(" tbt ", " throw back Thursday ")
+    temp.replace(" tweet ", " a twitter status update ")
+    temp.replace(" tweeting ", " writing a twitter status update ")
+    temp.replace(" u ", " you ")
+    temp.replace(" r ", " are ")
+    temp.replace(" luv ", " love ")
+
+
     #remove repetitive punctuation
     for p in list(punctuation):
-        temp.replace("rt", "retweet")
-        temp.replace("b/c", "because")
-        temp.replace("@reply", "")
-        temp.replace(" b ", " be ")
-        temp.replace("b4", "before")
-        temp.replace(" ab ", " about ")
-        temp.replace(" abt ", " about ")
-        temp.replace(" bfn ", " bye for now ")
-        temp.replace(" br ", " best reguards ")
-        temp.replace(" chk ", " check ")
-        temp.replace(" cld ", " could ")
-        temp.replace(" cre8 ", " create ")
-        temp.replace(" da ", " the ")
-        temp.replace(" dt ", " direct tweet ")
-        temp.replace(" em ", " email ")
-        temp.replace(" fab ", " fabulous ")
-        temp.replace(" fav ", " favorite ")
-        temp.replace(" ic ", " i see ")
-        temp.replace(" icymi ", " in case you missed it")
-        temp.replace(" idk ", " i don't know ")
-        temp.replace(" kk ", " that is nice ")
-        temp.replace(" selfie ", " a picture of myself ")
-        temp.replace(" tbt ", " throw back Thursday ")
-        temp.replace(" tweet ", " a twitter status update ")
-        temp.replace(" tweeting ", " writing a twitter status update ")
-        temp.replace(" u ", " you ")
-        temp.replace(" r ", " are ")
-        temp.replace(" luv ", " love ")
-
-
         temp = temp.replace(p, "")
 
     data["text"] = temp
@@ -89,14 +115,22 @@ def preprocess(data):
 
 
 
-def CleanDb(q):
+def CleanDb(p):
     while True:
         delta = datetime.datetime.utcnow() - datetime.timedelta(minutes=15)
         with db.atomic():
             Tweet.delete().where(Tweet.created_at < delta).execute()
         sleep(5)
 
+def GracefulExit(_signal, frame):
+    if _signal is signal.SIGINT:
+        print "\nShutting down..."
+        sys.exit(0)
+
 if __name__ == '__main__':
+
+    #set up exit handler
+    signal.signal(signal.SIGINT, GracefulExit)
 
     #spawn db cleaner
     q = Queue()
@@ -110,5 +144,10 @@ if __name__ == '__main__':
     stream = Stream(auth, listener)
 
     #This line filter Twitter Streams to capture data by the keywords: 'python', 'javascript', 'ruby'
-    stream.filter(locations=(-137.8,21.4,-66.5,51.6), async=False)
-    #stream.sample()
+    print "Starting Stream..."
+    while(True):
+        try:
+            stream.filter(locations=(-137.8,21.4,-66.5,51.6), async=False)
+            #stream.sample()
+        except Exception, e:
+            print str(e)

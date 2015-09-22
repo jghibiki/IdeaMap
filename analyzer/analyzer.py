@@ -12,7 +12,7 @@
 import sys
 import os
 import datetime
-import time
+import time, signal
 sys.path.insert(0,os.path.abspath("../models"))
 from Models import *
 
@@ -45,7 +45,16 @@ def usage():
     print("Usage:")
     print("python %s <data_dir>" % sys.argv[0])
 
+
+
+def GracefulExit(_signal, frame):
+    if _signal is signal.SIGINT:
+        print "\nShutting down..."
+        sys.exit(0)
+
+
 if __name__ == '__main__':
+    signal.signal(signal.SIGINT, GracefulExit)
 
     classes = ['pos', 'neg']
 
@@ -70,6 +79,7 @@ if __name__ == '__main__':
                                  sublinear_tf=True,
                                  use_idf=True,
                                  decode_error="ignore")
+
     print "vectorizing training set..."
     train_vectors = vectorizer.fit_transform(train_data)
     print "training svm..."
