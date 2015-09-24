@@ -34,6 +34,9 @@ class StreamListener(tweepy.StreamListener):
                     global frameTime
 
                     if(datetime.datetime.utcnow() > frameTime):
+                        global q
+                        q.put_nowait(time)
+
                         frame += 1
                         frameTime = datetime.datetime.utcnow() + datetime.timedelta(minutes=1)
                         print "Time Frame: " + str(frame)
@@ -128,11 +131,11 @@ def preprocess(data):
 
 
 
-def CleanDb(p):
+def CleanDb(q):
     while True:
-        delta = datetime.datetime.utcnow() - datetime.timedelta(minutes=15)
+        obj = q.get() #deletes entries when passed a frame to remove
         with db.atomic():
-            Tweet.delete().where(Tweet.created_at < delta).execute()
+            Tweet.delete().where(Tweet.frame == obj).execute()
         sleep(5)
 
 def GracefulExit(_signal, frame):
