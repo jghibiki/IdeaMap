@@ -35,7 +35,7 @@ class StreamListener(tweepy.StreamListener):
 
                     if(datetime.datetime.utcnow() > frameTime):
                         global q
-                        q.put_nowait(time)
+                        q.put_nowait(frame)
 
                         frame += 1
                         frameTime = datetime.datetime.utcnow() + datetime.timedelta(minutes=1)

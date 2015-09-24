@@ -137,7 +137,7 @@ define(["ko", "mapWrapper", "chain"], function(ko, MapWrapperModule, chain){
                     for(var x=0; x < self.tweetFeatureMap.length; x++){
                         if(self.tweetFeatureMap[x].tweet  === change.value){
                             self.tweetFeatureMap[x].marker.setMap(null);
-                            mapping = self.tweetFeatureMap.slice(x, 1);
+                            mapping = self.tweetFeatureMap.splice(x, 2);
                             delete mapping;
                             break;
                         }

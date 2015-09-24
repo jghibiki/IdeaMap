@@ -5,6 +5,7 @@ from nocache import nocache
 import sys, os, json, datetime
 sys.path.insert(0, os.path.abspath("../models"))
 from Models import *
+from peewee import fn
 
 ##################
 ## Server Setup ##
@@ -18,7 +19,8 @@ CORS(app, headers=['Content-Type'])
 @nocache
 def GetTweets(page):
     tweets = []
-    for tweet in ProcessedTweet.select().order_by(ProcessedTweet.created_at).paginate(page if page is 0 else page-1, 100):
+    maxFrame = ProcessedTweet.select().aggregate(fn.Max(ProcessedTweet.frame)) - 1
+    for tweet in ProcessedTweet.select().where(ProcessedTweet.frame == maxFrame):
         data = {
                 "id": tweet.id,
                 "entities": json.loads(tweet.entities),
@@ -36,7 +38,7 @@ def GetTweets(page):
     numberOfPages = (ProcessedTweet.select().count() / 100)
     nextLoad = None if numberOfPages <= page+1  else page+1
 
-    return jsonify({"result": tweets, "next": nextLoad})
+    return jsonify({"result": tweets, "next": None})
 
 @app.route("/tweets/count", methods=["GET"])
 @nocache
