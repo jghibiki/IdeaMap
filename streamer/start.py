@@ -17,6 +17,9 @@ access_token_secret = "4HCkIZa7rZDSbU7BOZS75JAdXe0kaS3VK8lv9rfF81pY2"
 consumer_key = "9YB1LjysXrJUXhfPfdnfyB1lP"
 consumer_secret = "xEWYrXMcyQFrKndrl10s8193HjjuBtvGE9yybrk5TQjvrYnsQy"
 
+frameTime = datetime.datetime.utcnow()
+frame = 0
+
 
 class StreamListener(tweepy.StreamListener):
 
@@ -26,41 +29,51 @@ class StreamListener(tweepy.StreamListener):
         if not "delete" in data:
             if ("coordinates" in data and data["coordinates"] != None) or ("place" in data and data["place"] != None):
                 if "hiring" not in data["text"].lower() and "weather" not in data["text"].lower():
+
+                    global frame
+                    global frameTime
+
+                    if(datetime.datetime.utcnow() > frameTime):
+                        frame += 1
+                        frameTime = datetime.datetime.utcnow() + datetime.timedelta(minutes=1)
+                        print "Time Frame: " + str(frame)
+
+                    data = preprocess(data)
+
+                    coord = None
+
+                    if data["coordinates"] != None:
+                        coord = data["coordinates"]
+                    elif data["place"] != None:
+                        avgLng = (
+                            data["place"]["bounding_box"]["coordinates"][0][0][0] + \
+                            data["place"]["bounding_box"]["coordinates"][0][1][0] + \
+                            data["place"]["bounding_box"]["coordinates"][0][2][0] + \
+                            data["place"]["bounding_box"]["coordinates"][0][3][0]
+                        )
+
+                        avgLat = (
+                            data["place"]["bounding_box"]["coordinates"][0][0][1] + \
+                            data["place"]["bounding_box"]["coordinates"][0][1][1] + \
+                            data["place"]["bounding_box"]["coordinates"][0][2][1] + \
+                            data["place"]["bounding_box"]["coordinates"][0][3][1]
+                        )
+
+                        coord = {
+                            "coordinates":[
+                                avgLng, avgLat
+                            ],
+                            "type": "Point"
+                        }
+
                     with db.atomic():
-                        data = preprocess(data)
-
-                        coord = None
-
-                        if data["coordinates"] != None:
-                            coord = data["coordinates"]
-                        elif data["place"] != None:
-                            avgLng = (
-                                data["place"]["bounding_box"]["coordinates"][0][0][0] + \
-                                data["place"]["bounding_box"]["coordinates"][0][1][0] + \
-                                data["place"]["bounding_box"]["coordinates"][0][2][0] + \
-                                data["place"]["bounding_box"]["coordinates"][0][3][0]
-                            )
-
-                            avgLat = (
-                                data["place"]["bounding_box"]["coordinates"][0][0][1] + \
-                                data["place"]["bounding_box"]["coordinates"][0][1][1] + \
-                                data["place"]["bounding_box"]["coordinates"][0][2][1] + \
-                                data["place"]["bounding_box"]["coordinates"][0][3][1]
-                            )
-
-                            coord = {
-                                "coordinates":[
-                                    avgLng, avgLat
-                                ],
-                                "type": "Point"
-                            }
-
                         row = Tweet.create(
                             entities = json.dumps(data["entities"]),
                             created_at = datetime.datetime.strptime(data["created_at"], '%a %b %d %H:%M:%S +0000 %Y').replace(tzinfo=pytz.UTC),
                             coordinates = json.dumps(coord),
                             text = data["text"],
-                            original = data["original"]
+                            original = data["original"],
+                            frame = frame
                         )
                         print row.id
 
@@ -128,6 +141,8 @@ def GracefulExit(_signal, frame):
         sys.exit(0)
 
 if __name__ == '__main__':
+    frameTime = datetime.datetime.utcnow()
+    frame = 0
 
     #set up exit handler
     signal.signal(signal.SIGINT, GracefulExit)
@@ -136,6 +151,8 @@ if __name__ == '__main__':
     q = Queue()
     p = Process(target=CleanDb, args=(q,))
     p.start()
+
+    frameTime = datetime.datetime.utcnow() + datetime.timedelta(minutes=1)
 
     #This handles Twitter authetification and the connection to Twitter Streaming API
     listener = StreamListener()
