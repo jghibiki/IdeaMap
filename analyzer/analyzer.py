@@ -108,7 +108,7 @@ if __name__ == '__main__':
                 print trow.id
                 classified_tweet = classify(trow.text)
                 with db.atomic():
-                    ProcessedTweet.create(entities=trow.entities, process_date=datetime.datetime.utcnow(), created_at=trow.created_at, coordinates=trow.coordinates, text=trow.text, original=trow.original, rating=classified_tweet[1], classification=classified_tweet[0])
+                    ProcessedTweet.create(entities=trow.entities, process_date=datetime.datetime.utcnow(), created_at=trow.created_at, coordinates=trow.coordinates, text=trow.text, original=trow.original, rating=classified_tweet[1], classification=classified_tweet[0], frame=trow.frame)
                 with db.atomic():
                     trow.delete_instance()
                 prune_old_tweets()
