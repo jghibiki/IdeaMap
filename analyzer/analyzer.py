@@ -30,18 +30,22 @@ currentFrame = None
 classifier_liblinear = svm.LinearSVC()
 
 def classify(data):
-    test_vectors = vectorizer.transform([data])
-    prediction_liblinear = classifier_liblinear.predict(test_vectors)
-    confidence = classifier_liblinear.decision_function(test_vectors)
-    return [prediction_liblinear[0], confidence]
+    try:
+        test_vectors = vectorizer.transform([data])
+        prediction_liblinear = classifier_liblinear.predict(test_vectors)
+        confidence = classifier_liblinear.decision_function(test_vectors)
+        return [prediction_liblinear[0], confidence]
+    except:
+        print data.original
+        return None
 
-def prune_old_tweets(newFrame):
+def prune_old_tweets(newFrame, counter):
     global currentFrame
     if(currentFrame == None):
         currentFrame = newFrame 
     
     if(newFrame != currentFrame):
-        print "Pruning Frame: " + str(currentFrame-1)
+        print "Pruning Frame: " + str(currentFrame)  + " Total Tweets: " + str(counter)
         with db.atomic():
             diff = currentFrame-1
             ProcessedTweet.delete().where(ProcessedTweet.frame == diff).execute()
@@ -90,8 +94,7 @@ if __name__ == '__main__':
         vectorizer = TfidfVectorizer(min_df=5,
                                      max_df = 0.8,
                                      sublinear_tf=True,
-                                     use_idf=True,
-                                     decode_error="ignore")
+                                     use_idf=True)
 
         print "vectorizing training set..."
         train_vectors = vectorizer.fit_transform(train_data)
@@ -107,21 +110,24 @@ if __name__ == '__main__':
 
     # Process tweets until someone kills this
     print "starting db loop..."
+    counter = 0
     while True:
         lastFrame = None
         if Tweet.select().count()>0:
-            for trow in Tweet.select().order_by(Tweet.created_at):
-                print trow.id
+            for trow in Tweet.select().order_by(Tweet.created_at.desc()):
+                counter += 1
                 classified_tweet = classify(trow.text)
-                with db.atomic():
-                    ProcessedTweet.create(entities=trow.entities, process_date=datetime.datetime.utcnow(), created_at=trow.created_at, coordinates=trow.coordinates, text=trow.text, original=trow.original, rating=classified_tweet[1], classification=classified_tweet[0], frame=trow.frame)
+                if classified_tweet is not None:
+                    with db.atomic():
+                        ProcessedTweet.create(entities=trow.entities, process_date=datetime.datetime.utcnow(), created_at=trow.created_at, coordinates=trow.coordinates, text=trow.text, original=trow.original, rating=classified_tweet[1], classification=classified_tweet[0], frame=trow.frame)
+
                 frame = trow.frame
                 with db.atomic():
                     trow.delete_instance()
-                prune_old_tweets(frame)
+                prune_old_tweets(frame, counter)
                 lastFrame = frame
         if lastFrame is not None:
-            prune_old_tweets(lastFrame)
+            prune_old_tweets(lastFrame, counter)
             lastFrame = None
         time.sleep(1)
 

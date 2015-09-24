@@ -19,6 +19,7 @@ consumer_secret = "xEWYrXMcyQFrKndrl10s8193HjjuBtvGE9yybrk5TQjvrYnsQy"
 
 frameTime = datetime.datetime.utcnow()
 frame = 0
+count = 0 
 
 
 class StreamListener(tweepy.StreamListener):
@@ -32,14 +33,18 @@ class StreamListener(tweepy.StreamListener):
 
                     global frame
                     global frameTime
+                    global count
+
 
                     if(datetime.datetime.utcnow() > frameTime):
                         global q
                         q.put_nowait(frame)
 
+                        print "Time Frame: " + str(frame) + " Total Tweets: " + str(count)
                         frame += 1
                         frameTime = datetime.datetime.utcnow() + datetime.timedelta(minutes=1)
-                        print "Time Frame: " + str(frame)
+
+                    count += 1
 
                     data = preprocess(data)
 
@@ -78,7 +83,6 @@ class StreamListener(tweepy.StreamListener):
                             original = data["original"],
                             frame = frame
                         )
-                        print row.id
 
         return True
 
