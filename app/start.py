@@ -28,7 +28,8 @@ def GetTweets(page):
                 "text": tweet.text,
                 "original": tweet.original,
                 "rating": tweet.rating,
-                "classification": tweet.classification
+                "classification": tweet.classification,
+                "frame": tweet.frame
         }
         tweets.append(data)
 
