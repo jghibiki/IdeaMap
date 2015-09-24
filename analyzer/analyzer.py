@@ -26,6 +26,7 @@ train_data = []
 train_labels = []
 test_data = []
 test_labels = []
+currentFrame = None
 classifier_liblinear = svm.LinearSVC()
 
 def classify(data):
@@ -34,13 +35,17 @@ def classify(data):
     confidence = classifier_liblinear.decision_function(test_vectors)
     return [prediction_liblinear[0], confidence]
 
-def prune_old_tweets():
-    delta = datetime.timedelta(minutes=1)
-    cutoff_time = datetime.datetime.utcnow() - delta
-    if ProcessedTweet.select().where(ProcessedTweet.process_date < cutoff_time) > 0:
-         for prow in ProcessedTweet.select().where(ProcessedTweet.process_date < cutoff_time):
-            with db.atomic():
-                prow.delete_instance()
+def prune_old_tweets(newFrame):
+    global currentFrame
+    if(currentFrame == None):
+        currentFrame = newFrame 
+    
+    if(newFrame != currentFrame):
+        print "Pruning Frame: " + str(currentFrame-1)
+        with db.atomic():
+            diff = currentFrame-1
+            ProcessedTweet.delete().where(ProcessedTweet.frame == diff).execute()
+        currentFrame = newFrame
 
 def usage():
     print("Usage:")
@@ -103,16 +108,21 @@ if __name__ == '__main__':
     # Process tweets until someone kills this
     print "starting db loop..."
     while True:
+        lastFrame = None
         if Tweet.select().count()>0:
             for trow in Tweet.select().order_by(Tweet.created_at):
                 print trow.id
                 classified_tweet = classify(trow.text)
                 with db.atomic():
                     ProcessedTweet.create(entities=trow.entities, process_date=datetime.datetime.utcnow(), created_at=trow.created_at, coordinates=trow.coordinates, text=trow.text, original=trow.original, rating=classified_tweet[1], classification=classified_tweet[0], frame=trow.frame)
+                frame = trow.frame
                 with db.atomic():
                     trow.delete_instance()
-                prune_old_tweets()
-        prune_old_tweets()
+                prune_old_tweets(frame)
+                lastFrame = frame
+        if lastFrame is not None:
+            prune_old_tweets(lastFrame)
+            lastFrame = None
         time.sleep(1)
 
 
