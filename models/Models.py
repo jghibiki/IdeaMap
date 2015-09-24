@@ -14,6 +14,7 @@ class Tweet(BaseModel):
     coordinates = TextField()
     text = TextField()
     original = TextField()
+    frame = IntegerField()
 
 class ProcessedTweet(BaseModel):
     id = PrimaryKeyField()
@@ -26,6 +27,7 @@ class ProcessedTweet(BaseModel):
     original = TextField()
     rating = FloatField()
     classification = TextField()
+    frame = IntegerField()
 
 
 
