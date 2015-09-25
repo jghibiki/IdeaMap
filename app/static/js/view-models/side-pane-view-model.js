@@ -133,16 +133,6 @@ define(["ko", "mapWrapper", "chain"], function(ko, MapWrapperModule, chain){
                         //change tweetFeatureMap to be observable so that we can modify the polyline set when this is modified
                     }
                 }
-                else if(change.status === "deleted"){
-                    for(var x=0; x < self.tweetFeatureMap.length; x++){
-                        if(self.tweetFeatureMap[x].tweet  === change.value){
-                            self.tweetFeatureMap[x].marker.setMap(null);
-                            mapping = self.tweetFeatureMap.splice(x, 2);
-                            delete mapping;
-                            break;
-                        }
-                    }
-                }
             });
         }, null, "arrayChange");
 
@@ -180,13 +170,13 @@ define(["ko", "mapWrapper", "chain"], function(ko, MapWrapperModule, chain){
                 chain.get()
                     .cc(function(context, abort, next){
                         console.log("Deleting expired tweets.");
-                        for(var i =0; i < self.tweets().length; i++){
-                            newDate = new Date().getTime();
-                            oldDate = new Date(newDate-10000);
-                            if(self.tweets()[i].process_date.getTime() < oldDate.getTime()){
-                                self.tweets.remove(self.tweets()[i]);
-                            }
+			self.tweets([]);
+                        for(var x=0; x < self.tweetFeatureMap.length; x++){
+			    self.tweetFeatureMap[x].marker.setMap(null);
+			    mapping = self.tweetFeatureMap.splice(x, 1);
+			    delete mapping;
                         }
+
                         next();
                     })
                     .cc(function(context, abort, next){
