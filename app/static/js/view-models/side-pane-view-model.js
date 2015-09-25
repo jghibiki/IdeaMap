@@ -153,7 +153,6 @@ define(["ko", "mapWrapper", "chain"], function(ko, MapWrapperModule, chain){
 
                         next();
                     })
-		    .pause(1000)
                     .cc(function(context, abort, next){
                         console.log("Loading new tweets.");
                         $.ajax({
@@ -204,14 +203,6 @@ define(["ko", "mapWrapper", "chain"], function(ko, MapWrapperModule, chain){
 
                     }
 
-
-                    if(json["next"] !== null && json["next"] !== undefined){
-                        chain.get().cc(self._getMoreTweets)
-                            .cc(self._processMoreTweets)
-                            .end({"page": json["next"]}, function(){
-                                next();
-                            });
-                    }
                     next();
                 })
                 .end({}, function(){
@@ -220,37 +211,6 @@ define(["ko", "mapWrapper", "chain"], function(ko, MapWrapperModule, chain){
             }
         }
 
-        self._getMoreTweets = function(context, abort, next){
-            $.ajax({
-                url: "/tweets/"+context.page,
-                type: "GET",
-                dataType: "json",
-                success: function(response){
-                    context.response = response;
-                    next(context);
-                },
-                error: function(error){
-                    self._loading = false;
-                    abort()
-                }
-            });
-        }
-
-        self._processMoreTweets = function(context, error, next){
-            var json = context.response
-            for(tweet in json["result"]){
-                json["result"][tweet].process_date = new Date(Date(json["result"][tweet].process_date)) 
-                self.tweets.push(json["result"][tweet]);
-            }
-            if(json["next"] !== null && json["next"] !== undefined){
-                chain.get().cc(self._getMoreTweets)
-                    .cc(self._processMoreTweets)
-                    .end({"page": json["next"]}, function(){
-                        next();
-                    });
-            }
-            next(); 
-        }
         
 
         self.selectTweet = function(){
