@@ -105,32 +105,6 @@ define(["ko", "mapWrapper", "chain"], function(ko, MapWrapperModule, chain){
                 if(change.status === "added"){
                     if(!(change.value in self.tweets())){
 
-                        var icon = null;
-                        if(change.value.classification === "pos"){
-                            icon = self._pos; 
-                        }
-                        else if (change.value.classification == "neg"){
-                            icon = self._neg;
-                        }
-                        else{
-                            icon = self._pos;
-                        }
-                        
-                        var marker = new google.maps.Marker({
-                            position: {lat: change.value.coordinates.coordinates[1],
-                                       lng: change.value.coordinates.coordinates[0]},
-                            map: self.map(),
-                            icon: icon
-                        })
-
-                        marker.addListener("click", self.selectTweet);
-
-                        self.tweetFeatureMap.push({
-                            tweet: change.value, 
-                            marker: marker,
-                            animation: google.maps.Animation.DROP
-                        })
-                        //change tweetFeatureMap to be observable so that we can modify the polyline set when this is modified
                     }
                 }
             });
@@ -173,12 +147,13 @@ define(["ko", "mapWrapper", "chain"], function(ko, MapWrapperModule, chain){
 			self.tweets([]);
                         for(var x=0; x < self.tweetFeatureMap.length; x++){
 			    self.tweetFeatureMap[x].marker.setMap(null);
-			    mapping = self.tweetFeatureMap.splice(x, 1);
-			    delete mapping;
+			    self.tweetFeatureMap[x];
                         }
+			self.tweetFeatureMap = [];
 
                         next();
                     })
+		    .pause(1000)
                     .cc(function(context, abort, next){
                         console.log("Loading new tweets.");
                         $.ajax({
@@ -200,7 +175,36 @@ define(["ko", "mapWrapper", "chain"], function(ko, MapWrapperModule, chain){
                     for(tweet in json["result"]){
                         json["result"][tweet].process_date = new Date(Date(json["result"][tweet].process_date)) 
                         self.tweets.push(json["result"][tweet]);
+
+			var icon = null;
+			if(json["result"][tweet].classification === "pos"){
+			    icon = self._pos; 
+			}
+			else if (json["result"][tweet].classification == "neg"){
+			    icon = self._neg;
+			}
+			else{
+			    icon = self._pos;
+			}
+			
+			var marker = new google.maps.Marker({
+			    position: {lat: json["result"][tweet].coordinates.coordinates[1],
+			    	   lng: json["result"][tweet].coordinates.coordinates[0]},
+			    map: self.map(),
+			    icon: icon
+			})
+
+			marker.addListener("click", self.selectTweet);
+
+			self.tweetFeatureMap.push({
+			    tweet: json["result"][tweet], 
+			    marker: marker,
+			    animation: google.maps.Animation.DROP
+			})
+
                     }
+
+
                     if(json["next"] !== null && json["next"] !== undefined){
                         chain.get().cc(self._getMoreTweets)
                             .cc(self._processMoreTweets)
