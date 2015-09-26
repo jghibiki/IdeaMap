@@ -1,0 +1,36 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <title>
+            IdeaMap
+        </title>
+
+        <meta http-equiv="PRAGMA" content="NO-CACHE">
+        <meta http-equiv="CACHE-CONTROL" content="NO-CACHE">
+        <meta name="viewport" content="initial-scale=1.0">
+        <meta charset="utf-8">
+
+        <!-- require.js entrypoint -->
+        <script type="text/javascript" data-main="js/main" src="js/third-party/require.js"></script>
+        <script type="text/javascript" src="js/third-party/fetch.js"></script>
+        <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBzoP8xZO2S909yMs-BBjboPJgMQWqBm6s&signed_in=true"></script>
+
+        <!-- css files -->
+        <link rel="stylesheet" type="text/css" href="css/screen.css">
+        <link rel="stylesheet" type="text/css" href="css/pure-min.css">
+    
+    </head>
+    <body>
+        <div class="pure-g fullSize">
+            <div class="pure-u-3-4 fullSize">
+                <!-- ko content: contentViewModel -->
+                Loading...
+                <!-- /ko -->
+            </div>
+            <div class="pure-u-1-4 fullSize sidePane">
+                <!-- ko content: sidePaneViewModel -->
+                <!-- /ko -->
+            </div>
+        </div>
+    </body>
+</html>
