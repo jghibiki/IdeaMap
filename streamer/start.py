@@ -1,5 +1,5 @@
 # mport the necessary methods from tweepy library
-import json, sys, os, re, itertools, datetime, pytz, signal
+import json, sys, os, re, itertools, datetime, pytz, signal, math
 sys.path.insert(0, os.path.abspath("../models"))
 from Models import *
 from tweepy import OAuthHandler
@@ -49,36 +49,38 @@ class StreamListener(tweepy.StreamListener):
                     data = preprocess(data)
 
                     coord = None
+                    place = None
 
                     if data["coordinates"] != None:
                         coord = data["coordinates"]
-                    elif data["place"] != None:
-                        avgLng = (
-                            data["place"]["bounding_box"]["coordinates"][0][0][0] + \
-                            data["place"]["bounding_box"]["coordinates"][0][1][0] + \
-                            data["place"]["bounding_box"]["coordinates"][0][2][0] + \
-                            data["place"]["bounding_box"]["coordinates"][0][3][0]
-                        )
 
-                        avgLat = (
-                            data["place"]["bounding_box"]["coordinates"][0][0][1] + \
-                            data["place"]["bounding_box"]["coordinates"][0][1][1] + \
-                            data["place"]["bounding_box"]["coordinates"][0][2][1] + \
-                            data["place"]["bounding_box"]["coordinates"][0][3][1]
-                        )
-
-                        coord = {
-                            "coordinates":[
-                                avgLng, avgLat
+                    if data["place"] != None:
+                        place = [
+                            [
+                                data["place"]["bounding_box"]["coordinates"][0][0][0],
+                                data["place"]["bounding_box"]["coordinates"][0][0][1]
                             ],
-                            "type": "Point"
-                        }
+                            [
+                                data["place"]["bounding_box"]["coordinates"][0][1][0],
+                                data["place"]["bounding_box"]["coordinates"][0][1][1]
+                            ],
+                            [
+                                data["place"]["bounding_box"]["coordinates"][0][2][0],
+                                data["place"]["bounding_box"]["coordinates"][0][2][1]
+                            ],
+                            [
+                                data["place"]["bounding_box"]["coordinates"][0][3][0],
+                                data["place"]["bounding_box"]["coordinates"][0][3][1]
+                            ]
+                        ]
+
 
                     with db.atomic():
                         row = Tweet.create(
                             entities = json.dumps(data["entities"]),
                             created_at = datetime.datetime.strptime(data["created_at"], '%a %b %d %H:%M:%S +0000 %Y').replace(tzinfo=pytz.UTC),
                             coordinates = json.dumps(coord),
+                            place = json.dumps(place),
                             text = data["text"],
                             original = data["original"],
                             frame = frame

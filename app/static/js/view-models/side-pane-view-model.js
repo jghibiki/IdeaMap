@@ -1,25 +1,35 @@
-define(["ko", "mapWrapper", "chain"], function(ko, MapWrapperModule, chain){
+define(["ko", "jquery", "chain", "ol", "mapManager"], function(ko, jquery, chain, ol, MapManagerModule){
 
     function SidePanelViewModel(){
         var self = this;
 
-        self._shown = false;
-        self._disposed = false;
-        self._loading = false;
-        self._loadTimer = null;
-        self._deleteTimer = null;
+        self._ = {        
+            shown: false,
+            disposed: false,
+            loading: false,
+            loadTimer: null,
+            pointsLayerTitle: "markers",
+            mapManager: MapManagerModule.get(),
+            
+            checkIfDisposed: function(){
+                if(self._.disposed){
+                    throw new Error("SidePaneViewModel has already been disposed.");
+                }
+            },
+            checkIfShown: function(){
+                if(!self._.shown){
+                    throw new Error("SidePaneViewModel must be showing before it can be used.");
+                }
+            }
+        }
 
-
-        self._pos = new google.maps.MarkerImage("http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|5AB300")
-        self._neg = new google.maps.MarkerImage("http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|B30000")
-
-        self.map = MapWrapperModule.get().map;
-        self.tweets = ko.observableArray([]);
-        self.tweets.extend({rateLimit: 1000});
-        self.tweetFeatureMap = []
+        self.tweets = [];
+        self.filters = []; 
+		self.key = null;
 
         self.selectedTweet = ko.observable()
         self.selectedTweetTags = ko.computed(function(){
+            /*
             if(self.selectedTweet() !== null && self.selectedTweet() !== undefined){
                 var tags = ""
                 for(var x=0; x< self.selectedTweet().entities.hashtags.length; x++){
@@ -28,11 +38,13 @@ define(["ko", "mapWrapper", "chain"], function(ko, MapWrapperModule, chain){
                 return tags
             }
             return "No tags."
+            */
         });
 
         self.polarityFilter = ko.observable()
         self.tagFilterRaw = ko.observable("")
         self.tagFilter = ko.computed(function(){
+            /*
             if(self.tagFilterRaw() !== undefined 
                 || self.tagFilterRaw() !== null){
                 return self.tagFilterRaw().replace("#", "").replace(" ", "").split(",");
@@ -40,9 +52,11 @@ define(["ko", "mapWrapper", "chain"], function(ko, MapWrapperModule, chain){
             else{
                 return null;
             }
+            */
         })
 
         self.polarityFilterSubscription = self.polarityFilter.subscribe(function(value){
+            /*
             for(var x=0; x < self.tweetFeatureMap.length; x++){
                 if(value !== "both"){
                     if(self.tweetFeatureMap[x].tweet.classification !== value){
@@ -56,9 +70,11 @@ define(["ko", "mapWrapper", "chain"], function(ko, MapWrapperModule, chain){
                     self.tweetFeatureMap[x].marker.setVisible(true);
                 }
             }
+            */
         });
 
         self.tagFilterSubscription = self.tagFilter.subscribe(function(value){
+            /*
             if(value !== null && value !== undefined && value.length > 0){
                 for(var x=0; x<self.tweetFeatureMap.length; x++){
                     var hasTag = false;
@@ -81,12 +97,14 @@ define(["ko", "mapWrapper", "chain"], function(ko, MapWrapperModule, chain){
                     }
                 }
             }
+            */
         });
 
 
         self.confidenceRatingFilter = ko.observable(0)
 
         self.confidenceRatingFilterSubscription = self.confidenceRatingFilter.subscribe(function(value){
+            /*
             var numVal = Number(value); 
 
             for(var x=0; x<self.tweetFeatureMap.length; x++){
@@ -97,129 +115,136 @@ define(["ko", "mapWrapper", "chain"], function(ko, MapWrapperModule, chain){
                     self.tweetFeatureMap[x].marker.setMap(null); 
                 }
             }
+            */
         }); 
     
 
-        self.tweetSubscription = self.tweets.subscribe(function(changedTweets){
-            changedTweets.forEach(function(change){
-                if(change.status === "added"){
-                    if(!(change.value in self.tweets())){
-
-                    }
-                }
-            });
-        }, null, "arrayChange");
-
-
         self.shown = function(){
-            if(!self._shown){
+            self._.checkIfDisposed()
+            if(!self._.shown){
+                self._.shown = true;
                 
                 self.getTweets();
                 
-                self._loadTimer = setInterval(self.getTweets, 60000);
-                self._shown = true;
+                self._.loadTimer = setInterval(self.getTweets, 60000);
             }
         }
 
         self.hidden = function(){
-            if(self._shown){
-                self._shown = false;
+            self.checkIfDisposed();
+            if(self._.shown){
+                self._.shown = false;
 
-                clearTimer(self._loadTimer);
-                clearTimer(self._deleteTimer);
+                clearTimer(self._.loadTimer);
             } 
         }
 
         self.dispose = function(){
-            if(!self._disposed){
+            if(!self._.disposed){
                 self.hidden();
-                self._map = null;
-                self._dispoed = true;
+                self._.dispoed = true;
             }
         }
 
         self.getTweets = function(){
-            if(!self._loading){
-                self._loading = true;
+            self._.checkIfDisposed();
+            self._.checkIfShown();
+            if(!self._.loading){
+                self._.loading = true;
                 chain.get()
-                    .cc(function(context, abort, next){
-                        console.log("Deleting expired tweets.");
-			self.tweets([]);
-                        for(var x=0; x < self.tweetFeatureMap.length; x++){
-			    self.tweetFeatureMap[x].marker.setMap(null);
-			    self.tweetFeatureMap[x];
+                .cc(function(context, abort, next){
+                    console.log("Deleting expired tweets.");
+					self._.mapManager.Unsubscribe(self.key);
+                    self._.mapManager.RemoveLayer(self._.pointsLayerTitle);
+                    self.tweets = [];
+                    next();
+                })
+                .cc(function(context, abort, next){
+                    console.log("Loading new tweets.");
+                    $.ajax({
+                        url: "/tweets/0",
+                        type: "GET",
+                        dataType: "json",
+                        success: function(response){
+                            context.response = response;
+                            next(context);
+                        },
+                        error: function(error){
+                            self._.loading = false;
+                            abort();
                         }
-			self.tweetFeatureMap = [];
-
-                        next();
-                    })
-                    .cc(function(context, abort, next){
-                        console.log("Loading new tweets.");
-                        $.ajax({
-                            url: "/tweets/0",
-                            type: "GET",
-                            dataType: "json",
-                            success: function(response){
-                                context.response = response;
-                                next(context);
-                            },
-                            error: function(error){
-                                self._loading = false;
-                                abort();
-                            }
-                        });
+                    });
                 })
                 .cc(function(context, error, next){
                     var json = context.response
-                    for(tweet in json["result"]){
-                        json["result"][tweet].process_date = new Date(Date(json["result"][tweet].process_date)) 
-                        self.tweets.push(json["result"][tweet]);
+                    var features = []
+                    for(var x=0; x< json["result"].length; x++){
+                        var tweet = json["result"][x];
+                        tweet.process_date = new Date(Date(tweet.process_date));
 
-			var icon = null;
-			if(json["result"][tweet].classification === "pos"){
-			    icon = self._pos; 
-			}
-			else if (json["result"][tweet].classification == "neg"){
-			    icon = self._neg;
-			}
-			else{
-			    icon = self._pos;
-			}
-			
-			var marker = new google.maps.Marker({
-			    position: {lat: json["result"][tweet].coordinates.coordinates[1],
-			    	   lng: json["result"][tweet].coordinates.coordinates[0]},
-			    map: self.map(),
-			    icon: icon
-			})
+						
+						var coords = null;
+						if(tweet.coordinates !== null){
+							coords = ol.proj.fromLonLat(tweet.coordinates.coordinates);
+						}
+						else if(tweet.place !== null){
+							sumLat = 0;
+							sumLon = 0;	
+							for(var y=0; y<tweet.place.length; y++){
+								var tempCoord = ol.proj.fromLonLat(tweet.place[y]);
+								sumLon = sumLon + tempCoord[0];
+								sumLat = sumLat + tempCoord[1];
+							}
 
-			marker.addListener("click", self.selectTweet);
+							var avgLon = sumLon/tweet.place.length;
+							var avgLat = sumLat/tweet.place.length;
 
-			self.tweetFeatureMap.push({
-			    tweet: json["result"][tweet], 
-			    marker: marker,
-			    animation: google.maps.Animation.DROP
-			})
+							coords = [avgLon, avgLat];
+						}
 
+						var geom = new ol.geom.Point(coords)
+						var feature = new ol.Feature(geom);
+
+						self.tweets.push({
+							tweet: tweet,
+							feature: feature
+						});
+
+						features.push(feature);
                     }
+
+					self.key = self._.mapManager.Subscribe(ol.MapBrowserEvent.EventType.SINGLECLICK, self.selectTweet);
+
+                    var sourceVector = new ol.source.Vector({
+                        features: features
+                    });
+
+                    var layerVector = new ol.layer.Vector({
+                        title: self._.pointsLayerTitle,
+                        source: sourceVector
+                    });
+
+					self._.mapManager.AddLayer(layerVector);
 
                     next();
                 })
                 .end({}, function(){
-                    self._loading = false;   
+                    self._.loading = false;   
                 });
             }
         }
 
         
 
-        self.selectTweet = function(){
-            for(var x=0; x< self.tweetFeatureMap.length; x++){
-                if(self.tweetFeatureMap[x].marker === this){
-                    self.selectedTweet(self.tweetFeatureMap[x].tweet);
-                    break;
-                }
-            }
+        self.selectTweet = function(feature){
+			var tweet = null;
+			for(var x=0; x<self.tweets.length; x++){
+				if(self.tweets[x].feature === feature){
+					self.selectedTweet(self.tweets[x].tweet);
+					return;
+				}
+			}
+
         }
 
         self.clearSelectedTweet = function(){

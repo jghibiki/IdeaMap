@@ -119,7 +119,17 @@ if __name__ == '__main__':
                 classified_tweet = classify(trow.text)
                 if classified_tweet is not None:
                     with db.atomic():
-                        ProcessedTweet.create(entities=trow.entities, process_date=datetime.datetime.utcnow(), created_at=trow.created_at, coordinates=trow.coordinates, text=trow.text, original=trow.original, rating=classified_tweet[1], classification=classified_tweet[0], frame=trow.frame)
+                        ProcessedTweet.create(
+								entities=trow.entities, 
+								process_date=datetime.datetime.utcnow(), 
+								created_at=trow.created_at, 
+								coordinates=trow.coordinates, 
+								place=trow.place,
+								text=trow.text, 
+								original=trow.original, 
+								rating=classified_tweet[1], 
+								classification=classified_tweet[0], 
+								frame=trow.frame)
 
                 frame = trow.frame
                 with db.atomic():

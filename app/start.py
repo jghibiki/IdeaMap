@@ -27,6 +27,7 @@ def GetTweets(page):
                 "created_at": tweet.created_at,
                 "process_date": tweet.process_date,
                 "coordinates": json.loads(tweet.coordinates),
+				"place": json.loads(tweet.place),
                 "text": tweet.text,
                 "original": tweet.original,
                 "rating": tweet.rating,

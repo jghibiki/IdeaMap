@@ -3,6 +3,7 @@ requirejs.config({
 
     deps:["bootstrapper", "jquery"],
 
+
     paths: {
 
         //require plugins
@@ -18,9 +19,11 @@ requirejs.config({
 
         //third party scripts
         "ko": "third-party/knockout-3.3.0",
+	"ol": "third-party/ol",
 
         //utils
-        "chain": "utils/chain"
+        "chain": "utils/chain",
+
     },
     
     map: {
@@ -30,11 +33,16 @@ requirejs.config({
             "contentViewModel": "singleton!viewModel!views/content.html:view-models/content-view-model",
             "sidePaneViewModel": "singleton!viewModel!views/side-pane.html:view-models/side-pane-view-model",
 
+	    //services
+	    "mapService": "singleton!services/map-service",
+
             //managers
-            "singletonManager" : "managers/singleton-manager",
+            "singletonManager": "managers/singleton-manager",
+	    "mapManager": "singleton!managers/map-manager",
+
 
             //wrappers
-            "mapWrapper" : "singleton!wrappers/map-wrapper"
+            "mapWrapper": "singleton!wrappers/map-wrapper"
         }
     }
 })

@@ -1,41 +1,43 @@
-define(["ko", "mapWrapper"], function(ko, mapWrapperModule){
+define(["ko", "mapManager"], function(ko, MapManagerModule){
 
     function ContentViewModel(){
         var self = this;
 
-        self._shown = false;
-        self._disposed = false;
-        self.map = mapWrapperModule.get().map;
+        self._ = {
+            shown: false,
+            disposed: false,
+            mapManager: MapManagerModule.get(),
+
+            checkIfDisposed: function(){
+                if(self._.disposed){
+                    throw new Error("ContentViewModel has already been disposed.");
+                }
+            }
+        }
 
         self.shown = function(){
-            if(!self._shown){
+            self._.checkIfDisposed();
+            if(!self._.shown){
 
-                var map = new google.maps.Map(document.getElementById('map')) ;
+                self._.mapManager.SetMapTarget("map");
 
-                var bounds = new google.maps.LatLngBounds(
-                    new google.maps.LatLng(25.82, -124.39),
-                    new google.maps.LatLng(49.38, -66.94)
-                )
-
-                map.fitBounds(bounds);
-
-                self.map(map);
-
-                self._shown = true;
+                self._.shown = true;
             }
         }
 
         self.hidden = function(){
-            if(self._shown){
-                self._shown = false;
+            self._.checkIfDisposed();
+            if(self._.shown){
+                self._.mapManager.SetMapTarget(null);
+
+                self._.shown = false;
             } 
         }
 
         self.dispose = function(){
-            if(!self._disposed){
+            if(!self._.disposed){
                 self.hidden();
-                self.map(null);
-                self._disposed = true;
+                self._.disposed = true;
             }
         }
     }
