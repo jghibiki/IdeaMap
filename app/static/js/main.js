@@ -70,12 +70,16 @@ requirejs.config({
 				{
 					name: "packages/renderer/simple-dots",
 					type: "renderer"
+				},
+				{
+					name: "packages/renderer/red-green-dots",
+					type: "renderer"
 				}
 
 			]
 		},
 		"services/pipeline-service": {
-			"defaultRenderer": "packages/renderer/simple-dots"
+			"defaultRenderer": "packages/renderer/red-green-dots"
 		}
 	}
 })

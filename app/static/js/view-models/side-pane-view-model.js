@@ -1,4 +1,4 @@
-define(["ko", "jquery", "chain", "ol", "mapManager", "pipelineManager"], function(ko, jquery, chain, ol, MapManagerModule, PipelineManagerModule){
+define(["ko", "jquery", "chain", "ol", "pipelineManager"], function(ko, jquery, chain, ol, PipelineManagerModule){
 
     function SidePanelViewModel(){
         var self = this;
@@ -9,8 +9,7 @@ define(["ko", "jquery", "chain", "ol", "mapManager", "pipelineManager"], functio
             loading: false,
             loadTimer: null,
             pointsLayerTitle: "markers",
-            mapManager: MapManagerModule.get(),
-			pipelineManager: PipelineManagerModule.get(),
+	    pipelineManager: PipelineManagerModule.get(),
             
             checkIfDisposed: function(){
                 if(self._.disposed){
@@ -121,6 +120,8 @@ define(["ko", "jquery", "chain", "ol", "mapManager", "pipelineManager"], functio
             self._.checkIfDisposed()
             if(!self._.shown){
                 self._.shown = true;
+
+		self._.pipelineManager.registerEventListener("click", self.selectTweet);
                 
             }
         }
@@ -142,14 +143,7 @@ define(["ko", "jquery", "chain", "ol", "mapManager", "pipelineManager"], functio
 
 
         self.selectTweet = function(feature){
-			var tweet = null;
-			for(var x=0; x<self.tweets.length; x++){
-				if(self.tweets[x].feature === feature){
-					self.selectedTweet(self.tweets[x].tweet);
-					return;
-				}
-			}
-
+		self.selectedTweet(feature.get('tweet'));
         }
 
         self.clearSelectedTweet = function(){

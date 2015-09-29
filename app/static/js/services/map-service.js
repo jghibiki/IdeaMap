@@ -45,8 +45,8 @@ define(["ko", "ol"], function(ko, ol){
                 self.map = new ol.Map({
                     layers:[rootLayer],
                     view: new ol.View({
-                        center: [0 ,0],
-                        zoom: 2,
+                        center: [-10850000, 4500000],
+                        zoom: 5,
                     })
                 });
 
@@ -106,18 +106,18 @@ define(["ko", "ol"], function(ko, ol){
             self.map.addLayer(layer);
         }
 
-		self.Subscribe = function(ev, callback){
-			return self.map.on(ev, function(e){
-				feature = self.map.forEachFeatureAtPixel(e.pixel, function(feature, layer){
-					return feature 
-				})
-				callback(feature);
-			});
-		}
+	self.Subscribe = function(ev, callback){
+		return self.map.on(ev, function(e){
+			feature = self.map.forEachFeatureAtPixel(e.pixel, function(feature, layer){
+				return feature 
+			})
+			callback(feature);
+		});
+	}
 
-		self.Unsubscribe = function(key){
-			self.map.unByKey(key);
-		}
+	self.Unsubscribe = function(key){
+		self.map.unByKey(key);
+	}
 
 
     }

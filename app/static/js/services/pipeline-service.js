@@ -7,9 +7,9 @@ define(["ko", "chain", "moduleManager", "module"], function(ko, chain, ModuleMan
 			started: false,
 			disposed: false,
 			loadTimer: null,
+			loading: false,
 			moduleManager: ModuleManagerModule.get(),
 			defaultRenderer: module.config()["defaultRenderer"],
-			listeners: [],
 			clearLayerCallback: null,
 
 			checkIfInitialized: function(){
@@ -72,7 +72,7 @@ define(["ko", "chain", "moduleManager", "module"], function(ko, chain, ModuleMan
 						next();
 					})
 					.end({}, function(){
-						self._.beginPipeline();	
+						self._.loading = false;
 					});
 				}
 			},
@@ -84,7 +84,7 @@ define(["ko", "chain", "moduleManager", "module"], function(ko, chain, ModuleMan
 					.cc(self._.generateRender)
 					.end({
 						tweets: tweets,
-						events: self._.listeners
+						events: self.listeners()
 					})
 			},
 
@@ -103,7 +103,7 @@ define(["ko", "chain", "moduleManager", "module"], function(ko, chain, ModuleMan
 			},
 
 			generateRender: function(context, abort, next){
-				self._.clearLayerCallback = self.renderer().render(context);
+				self._.clearLayerCallback = self.renderer().render(context, self.listeners());
 				next();	
 			}
 		};	
@@ -112,6 +112,7 @@ define(["ko", "chain", "moduleManager", "module"], function(ko, chain, ModuleMan
 		self.tweets = ko.observable();
 		self.filters = ko.observableArray();
 		self.renderer = ko.observable();
+		self.listeners = ko.observableArray();
 
 
 		/* Tweets Subscription */
@@ -119,6 +120,8 @@ define(["ko", "chain", "moduleManager", "module"], function(ko, chain, ModuleMan
 			self._.beginPipeline(value);
 		});	
 
+		/* Listeners Subscription */
+		self.listenerSubscription = null;
 		/* Service Contracts */
 		self.init = function(){
 			if(!self._.initialized){
@@ -141,7 +144,13 @@ define(["ko", "chain", "moduleManager", "module"], function(ko, chain, ModuleMan
 					})
 					.end({}, function(module){
 						self.renderer(module);
+
 						self._.getTweets();
+
+						self.listenerSubscription = self.listeners.subscribe(function(value){
+							self._.beginPipeline(self.tweets());
+						});
+						
 						self._.loadTimer = setInterval(self._.getTweets, 60000);
 					});
 
@@ -168,21 +177,24 @@ define(["ko", "chain", "moduleManager", "module"], function(ko, chain, ModuleMan
 		/* Event Listeners */
 		self.registerEventListener = function(ev, callback){
 			self._.checkAll();
-			for(var x=0; x<self._.listeners.length; x++){
-				var listener = self._.listeners[x];
-				if(listener[0] === ev && listener[1] === callback){
+			for(var x=0; x<self.listeners().length; x++){
+				var listener = self.listeners()[x];
+				if("event" in listener && listener.event === ev &&  "callback" in listener && listener.callback === callback){
 					return;	
 				}
 			}
-			self._.listeners.push((ev, callback));
+			self.listeners.push({
+				event: ev, 
+				callback: callback
+			});
 		};
 
 		self.deregisterEventListener = function(ev, callback){
 			self._.checkAll();
-			for(var x=0; x<self._.listeners.length; x++){
-				var listener = self._.listeners[x];
-				if(listener[0] === ev && listener[1] === callback){
-					self._.listeners.remove(listener);
+			for(var x=0; x<self.listeners.length; x++){
+				var listener = self.listeners[x];
+				if(listener.event === ev && listener.callback === callback){
+					self.listeners.remove(listener);
 					break;
 				}
 			}
