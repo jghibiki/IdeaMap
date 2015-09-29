@@ -7,7 +7,7 @@
         <!-- ko if: selectedTweet -->
             <div>
                 <b>Tweet:</b>
-                <div data-bind="text: selectedTweet().original"></div>
+                <div data-bind="html: computedText() "></div>
             </div>
             <br>
             <div>
