@@ -1,4 +1,4 @@
-define(["ko", "jquery", "chain", "ol", "mapManager"], function(ko, jquery, chain, ol, MapManagerModule){
+define(["ko", "jquery", "chain", "ol", "mapManager", "pipelineManager"], function(ko, jquery, chain, ol, MapManagerModule, PipelineManagerModule){
 
     function SidePanelViewModel(){
         var self = this;
@@ -10,6 +10,7 @@ define(["ko", "jquery", "chain", "ol", "mapManager"], function(ko, jquery, chain
             loadTimer: null,
             pointsLayerTitle: "markers",
             mapManager: MapManagerModule.get(),
+			pipelineManager: PipelineManagerModule.get(),
             
             checkIfDisposed: function(){
                 if(self._.disposed){
@@ -23,11 +24,8 @@ define(["ko", "jquery", "chain", "ol", "mapManager"], function(ko, jquery, chain
             }
         }
 
-        self.tweets = [];
-        self.filters = []; 
-		self.key = null;
-
         self.selectedTweet = ko.observable()
+
         self.selectedTweetTags = ko.computed(function(){
             /*
             if(self.selectedTweet() !== null && self.selectedTweet() !== undefined){
@@ -124,9 +122,6 @@ define(["ko", "jquery", "chain", "ol", "mapManager"], function(ko, jquery, chain
             if(!self._.shown){
                 self._.shown = true;
                 
-                self.getTweets();
-                
-                self._.loadTimer = setInterval(self.getTweets, 60000);
             }
         }
 
@@ -135,7 +130,6 @@ define(["ko", "jquery", "chain", "ol", "mapManager"], function(ko, jquery, chain
             if(self._.shown){
                 self._.shown = false;
 
-                clearTimer(self._.loadTimer);
             } 
         }
 
@@ -146,95 +140,6 @@ define(["ko", "jquery", "chain", "ol", "mapManager"], function(ko, jquery, chain
             }
         }
 
-        self.getTweets = function(){
-            self._.checkIfDisposed();
-            self._.checkIfShown();
-            if(!self._.loading){
-                self._.loading = true;
-                chain.get()
-                .cc(function(context, abort, next){
-                    console.log("Deleting expired tweets.");
-					self._.mapManager.Unsubscribe(self.key);
-                    self._.mapManager.RemoveLayer(self._.pointsLayerTitle);
-                    self.tweets = [];
-                    next();
-                })
-                .cc(function(context, abort, next){
-                    console.log("Loading new tweets.");
-                    $.ajax({
-                        url: "/tweets/0",
-                        type: "GET",
-                        dataType: "json",
-                        success: function(response){
-                            context.response = response;
-                            next(context);
-                        },
-                        error: function(error){
-                            self._.loading = false;
-                            abort();
-                        }
-                    });
-                })
-                .cc(function(context, error, next){
-                    var json = context.response
-                    var features = []
-                    for(var x=0; x< json["result"].length; x++){
-                        var tweet = json["result"][x];
-                        tweet.process_date = new Date(Date(tweet.process_date));
-
-						
-						var coords = null;
-						if(tweet.coordinates !== null){
-							coords = ol.proj.fromLonLat(tweet.coordinates.coordinates);
-						}
-						else if(tweet.place !== null){
-							sumLat = 0;
-							sumLon = 0;	
-							for(var y=0; y<tweet.place.length; y++){
-								var tempCoord = ol.proj.fromLonLat(tweet.place[y]);
-								sumLon = sumLon + tempCoord[0];
-								sumLat = sumLat + tempCoord[1];
-							}
-
-							var avgLon = sumLon/tweet.place.length;
-							var avgLat = sumLat/tweet.place.length;
-
-							coords = [avgLon, avgLat];
-						}
-
-						var geom = new ol.geom.Point(coords)
-						var feature = new ol.Feature(geom);
-
-						self.tweets.push({
-							tweet: tweet,
-							feature: feature
-						});
-
-						features.push(feature);
-                    }
-
-					self.key = self._.mapManager.Subscribe(ol.MapBrowserEvent.EventType.SINGLECLICK, self.selectTweet);
-
-                    var sourceVector = new ol.source.Vector({
-                        features: features
-                    });
-
-                    var layerVector = new ol.layer.Vector({
-                        title: self._.pointsLayerTitle,
-                        source: sourceVector
-                    });
-
-					self._.mapManager.AddLayer(layerVector);
-
-                    next();
-                })
-                .end({}, function(){
-                    self._.loading = false;   
-                });
-            }
-        }
-
-        
 
         self.selectTweet = function(feature){
 			var tweet = null;

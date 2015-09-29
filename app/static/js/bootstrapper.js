@@ -10,11 +10,17 @@ define(["ko",
 
 	function LoadServices(context, abort, next){
 		require([
-			"mapService"
+			"mapService",
+			"moduleService",
+			"pipelineService"
 		],
-		function(MapServiceModule){
+		function(MapServiceModule,
+				 ModuleServiceModule,
+				 PipelineServiceModule){
 			context.services = {
-				mapService: MapServiceModule.get()
+				mapService: MapServiceModule.get(),
+				moduleService: ModuleServiceModule.get(),
+				pipelineService: PipelineServiceModule.get()
 			}
 			next(context);
 		});
@@ -41,6 +47,8 @@ define(["ko",
 
 	function InitializeServices(context, abort, next){
 		context.services.mapService.init();
+		context.services.moduleService.init();
+		context.services.pipelineService.init();
 		next(context);
 	}
 
@@ -58,6 +66,8 @@ define(["ko",
 	
 	function StartServices(context, abort, next){
 		context.services.mapService.start();
+		context.services.moduleService.start();
+		context.services.pipelineService.start();
 
 		next(context);
 	}
