@@ -74,26 +74,7 @@ define(["mapManager"], function(mapManagerModule){
 				for(var x=0; x<tweets.length; x++){
 					var tweet = tweets[x];	
 
-					var coords = null;
-					if(tweet.coordinates !== null){
-						coords = ol.proj.fromLonLat(tweet.coordinates.coordinates);
-					}
-					else if(tweet.place !== null){
-						sumLat = 0;
-						sumLon = 0;	
-						for(var y=0; y<tweet.place.length; y++){
-							var tempCoord = ol.proj.fromLonLat(tweet.place[y]);
-							sumLon = sumLon + tempCoord[0];
-							sumLat = sumLat + tempCoord[1];
-						}
-
-						var avgLon = sumLon/tweet.place.length;
-						var avgLat = sumLat/tweet.place.length;
-
-						coords = [avgLon, avgLat];
-					}
-
-					var geom = new ol.geom.Point(coords)
+					var geom = new ol.geom.Point(tweet.coordinates)
 					var feature = new ol.Feature({
 						geometry: geom,
 					    	tweet: tweet
@@ -106,7 +87,7 @@ define(["mapManager"], function(mapManagerModule){
 				if("events" in data){	
 					for(var x=0; x<data["events"].length; x++){
 						var event = data["events"][x];
-						var key = self._.mapManager.Subscribe(event[0], event[1]);
+						var key = self._.mapManager.subscribe(event[0], event[1]);
 						self._.keys.push(key);
 					}
 				}
@@ -120,7 +101,7 @@ define(["mapManager"], function(mapManagerModule){
 					source: sourceVector
 				});
 
-				self._.mapManager.AddLayer(layerVector);
+				self._.mapManager.addLayer(layerVector);
 			}
 
 			return function(){

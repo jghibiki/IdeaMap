@@ -4,41 +4,6 @@
     </div>
     <hr>
     <div>
-        <!-- ko if: selectedTweet -->
-            <div>
-                <b>Tweet:</b>
-                <div data-bind="html: computedText() "></div>
-            </div>
-            <br>
-            <div>
-                <b>Classification:</b>
-                <div data-bind="text: selectedTweet().classification"></div>
-            </div>
-            <br>
-            <div>
-                <b>Confidence Rating</b>
-                <div data-bind="text: selectedTweet().rating"></div>
-            </div>
-            <br>
-            <div>
-                <b>Tags</b>
-                <div data-bind="text: selectedTweetTags"></div>
-            </div>
-            <br>
-            <div>
-                <button data-bind="click: clearSelectedTweet">Clear</button>
-            </div>
-        <!-- /ko -->
-        <!-- ko ifnot: selectedTweet -->
-            <div>
-                <em>Click on a marker to view tweet data.</em>
-            </div>
-        <!-- /ko -->
-            
-        <br>
-        <hr>
-        <br>
-
         <div>
             <h3>Filters:</h3>
             <div>

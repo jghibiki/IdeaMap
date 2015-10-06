@@ -1,4 +1,4 @@
-define(["ko", "mapManager"], function(ko, MapManagerModule){
+define(["ko", "mapManager", "popupViewModel"], function(ko, MapManagerModule, PopupViewModelModule){
 
     function ContentViewModel(){
         var self = this;
@@ -15,11 +15,14 @@ define(["ko", "mapManager"], function(ko, MapManagerModule){
             }
         }
 
+	self.popupViewModel = PopupViewModelModule.get(),
+
         self.shown = function(){
             self._.checkIfDisposed();
             if(!self._.shown){
 
-                self._.mapManager.SetMapTarget("map");
+                self._.mapManager.setMapTarget("map");
+		self.popupViewModel.shown();
 
                 self._.shown = true;
             }
@@ -28,7 +31,9 @@ define(["ko", "mapManager"], function(ko, MapManagerModule){
         self.hidden = function(){
             self._.checkIfDisposed();
             if(self._.shown){
-                self._.mapManager.SetMapTarget(null);
+
+		self.popupViewModel.hidden();
+                self._.mapManager.setMapTarget(null);
 
                 self._.shown = false;
             } 
@@ -37,6 +42,13 @@ define(["ko", "mapManager"], function(ko, MapManagerModule){
         self.dispose = function(){
             if(!self._.disposed){
                 self.hidden();
+		
+		self.popupViewModel.dispose();
+		self.popupViewModel = null;
+		
+		self._.mapManager.dispose();
+		self._.mapManager = null;
+
                 self._.disposed = true;
             }
         }

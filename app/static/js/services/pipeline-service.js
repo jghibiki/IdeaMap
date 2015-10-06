@@ -66,6 +66,28 @@ define(["ko", "chain", "moduleManager", "module"], function(ko, chain, ModuleMan
 						for(var x=0; x< json["result"].length; x++){
 							var tweet = json["result"][x];
 							tweet.process_date = new Date(Date(tweet.process_date));
+
+							/* fix coordinates */
+							var coords = null;
+							if(tweet.coordinates !== null){
+								coords = ol.proj.fromLonLat(tweet.coordinates.coordinates);
+							}
+							else if(tweet.place !== null){
+								sumLat = 0;
+								sumLon = 0;	
+								for(var y=0; y<tweet.place.length; y++){
+									var tempCoord = ol.proj.fromLonLat(tweet.place[y]);
+									sumLon = sumLon + tempCoord[0];
+									sumLat = sumLat + tempCoord[1];
+								}
+
+								var avgLon = sumLon/tweet.place.length;
+								var avgLat = sumLat/tweet.place.length;
+
+								coords = [avgLon, avgLat];
+							}
+							
+							tweet.coordinates = coords;
 							tweets.push(tweet);
 						}
 						self.tweets(tweets);

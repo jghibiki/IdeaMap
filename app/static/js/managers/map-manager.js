@@ -19,29 +19,37 @@ define(["ko", "mapService", "ol"], function(ko, MapServiceModule, ol){
         }
 
 
-        self.SetMapTarget = function(target){
-            self._.mapService.SetMapTarget(target);
+        self.setMapTarget = function(target){
+            self._.mapService.setMapTarget(target);
         }
 
-        self.GetMapTarget = function(){
-            return self._.mapService.GetMapTarget();
+        self.getMapTarget = function(){
+            return self._.mapService.getMapTarget();
         }
 
-        self.RemoveLayer = function(title){
-            self._.mapService.RemoveLayer(title);
+        self.removeLayer = function(title){
+            self._.mapService.removeLayer(title);
         }
 
-        self.AddLayer= function(layer){
-            self._.mapService.AddLayer(layer);
+        self.addLayer= function(layer){
+            self._.mapService.addLayer(layer);
         }
 
-		self.Subscribe = function(ev, callback){
-			return self._.mapService.Subscribe(ev, callback);
-		}
+	self.subscribe = function(ev, callback){
+		return self._.mapService.subscribe(ev, callback);
+	}
 
-		self.Unsubscribe = function(key){
-			self._.mapService.Unsubscribe(key);
-		}
+	self.unsubscribe = function(key){
+		self._.mapService.unsubscribe(key);
+	}
+
+	self.registerOverlay = function(overlay){
+		self._.mapService.registerOverlay(overlay);
+	}
+
+	self.deregisterOverlay = function(overlay){
+		self._.mapService.deregisterOverlay(overlay);
+	}
     }
 
     return {

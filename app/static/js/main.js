@@ -33,21 +33,19 @@ requirejs.config({
             "mainWindowViewModel": "singleton!view-models/main-window-view-model",
             "contentViewModel": "singleton!viewModel!views/content.html:view-models/content-view-model",
             "sidePaneViewModel": "singleton!viewModel!views/side-pane.html:view-models/side-pane-view-model",
+	    "popupViewModel": "singleton!viewModel!views/popup.html:view-models/popup-view-model",
 
-	        //services
+	    //services
             "mapService": "singleton!services/map-service",
-			"moduleService": "singleton!services/module-service",
-			"pipelineService": "singleton!services/pipeline-service",
+	    "moduleService": "singleton!services/module-service",
+            "pipelineService": "singleton!services/pipeline-service",
 
             //managers
             "singletonManager": "managers/singleton-manager",
             "mapManager": "singleton!managers/map-manager",
-			"moduleManager": "singleton!managers/module-manager",
-			"pipelineManager": "singleton!managers/pipeline-manager",
+	    "moduleManager": "singleton!managers/module-manager",
+	    "pipelineManager": "singleton!managers/pipeline-manager",
 
-
-            //wrappers
-            "mapWrapper": "singleton!wrappers/map-wrapper"
         }
     },
 	

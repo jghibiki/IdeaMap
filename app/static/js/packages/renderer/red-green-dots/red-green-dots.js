@@ -58,7 +58,7 @@ define(["mapManager", "ol"], function(mapManagerModule, ol){
 					image: new ol.style.Circle({
 					    fill: redFill,
 					    stroke: redStroke,
-					    radius: 5
+					    radius: 7
 					}),
 					fill: redFill,
 					stroke: redStroke	
@@ -68,7 +68,7 @@ define(["mapManager", "ol"], function(mapManagerModule, ol){
 					image: new ol.style.Circle({
 					    fill: greenFill,
 					    stroke: greenStroke,
-					    radius: 5
+					    radius: 7
 					}),
 					fill: greenFill,
 					stroke: greenStroke	
@@ -113,26 +113,7 @@ define(["mapManager", "ol"], function(mapManagerModule, ol){
 				for(var x=0; x<tweets.length; x++){
 					var tweet = tweets[x];	
 
-					var coords = null;
-					if(tweet.coordinates !== null){
-						coords = ol.proj.fromLonLat(tweet.coordinates.coordinates);
-					}
-					else if(tweet.place !== null){
-						sumLat = 0;
-						sumLon = 0;	
-						for(var y=0; y<tweet.place.length; y++){
-							var tempCoord = ol.proj.fromLonLat(tweet.place[y]);
-							sumLon = sumLon + tempCoord[0];
-							sumLat = sumLat + tempCoord[1];
-						}
-
-						var avgLon = sumLon/tweet.place.length;
-						var avgLat = sumLat/tweet.place.length;
-
-						coords = [avgLon, avgLat];
-					}
-
-					var geom = new ol.geom.Point(coords)
+					var geom = new ol.geom.Point(tweet.coordinates)
 					var feature = new ol.Feature({
 						geometry: geom,
 					    	tweet: tweet
@@ -152,7 +133,7 @@ define(["mapManager", "ol"], function(mapManagerModule, ol){
 				if("events" in data){	
 					for(var x=0; x<data["events"].length; x++){
 						var event = data["events"][x];
-						var key = self._.mapManager.Subscribe(event.event, event.callback);
+						var key = self._.mapManager.subscribe(event.event, event.callback);
 						self._.keys.push(key);
 					}
 				}
@@ -166,14 +147,14 @@ define(["mapManager", "ol"], function(mapManagerModule, ol){
 					source: sourceVector
 				});
 
-				self._.mapManager.AddLayer(layerVector);
+				self._.mapManager.addLayer(layerVector);
 			}
 
 			return function(){
 				for(var x=0; x<self._.keys.length; x++){
-					self._.mapManager.Unsubscribe(self._.keys[x]);
+					self._.mapManager.unsubscribe(self._.keys[x]);
 				}
-				self._.mapManager.RemoveLayer("red-green-dots");
+				self._.mapManager.removeLayer("red-green-dots");
 			}
 		};
 	}

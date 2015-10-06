@@ -3,18 +3,18 @@
 	<div data-bind="if: selectedTweet">
             <p>
                 <b>Tweet:</b>
-                <span data-bind="html: computedText() "></span>
+                <span data-bind="html: computedText "></span>
             </p>
             <p>
                 <b>Classification:</b>
                 <span data-bind="text: selectedTweet().classification"></span>
             </p>
             <p>
-                <b>Confidence Rating:</b>
+                <b>Confidence Rating</b>
                 <span data-bind="text: selectedTweet().rating"></span>
             </p>
             <p>
-                <b>Tags:</b>
+                <b>Tags</b>
                 <span data-bind="text: selectedTweetTags"></span>
             </p>
 	</div>
