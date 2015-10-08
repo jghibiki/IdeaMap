@@ -1,0 +1,11 @@
+<div>
+    <!-- ko if: loading -->
+    Loading...
+    <!-- /ko -->
+    
+    <!-- ko ifnot: loading -->
+        <div data-bind="foreach: filters">
+            <span data-bind="text: friendlyName"></span>
+        </div>
+    <!-- /ko -->
+</div>

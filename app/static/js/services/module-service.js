@@ -18,6 +18,7 @@ define(["module", "chain"], function(module, chain){
             initialized: false,
             started: false,
             disposed: false,
+            loading: false,
             config: module.config(),
             pluginPrefix: "modular!",
             modules: [],
@@ -53,11 +54,11 @@ define(["module", "chain"], function(module, chain){
             loadListOfModules: function(context, abort, next){
                 if(context.notLoadedModules.length > 0){
                     var moduleToLoad = context.notLoadedModules.pop();
-                    self.loadModule(moduleToLoad, function(module){
-                        conext.loadedModules.push(module)
+                    self.loadModule(moduleToLoad.name, function(module){
+                        context.loadedModules.push(module)
                         next(context);
                     })
-                    conext.chain.cc(self._.loadListOfModules);
+                    context.chain.cc(self._.loadListOfModules);
                 }
                 else{
                     next(context);
@@ -122,15 +123,25 @@ define(["module", "chain"], function(module, chain){
         self.loadModule = function(name, callback){
             if("string" !== typeof name) throw new Error("ModuleService.loadModule: invalid module name.")
 
-            var module = self._.getModule(name);
-            if(module === null) throw new Error("ModuleService.loadModule: failed to find registered module with the name: '" + name + "'.");
-            if(module.loaded) throw new Error("ModuleService.loadModule: module with the name: '" + name + "' is already loaded.");
+            if(!self._.loading){
+                var module = self._.getModule(name);
+                if(module === null) throw new Error("ModuleService.loadModule: failed to find registered module with the name: '" + name + "'.");
+                if(module.loaded) throw new Error("ModuleService.loadModule: module with the name: '" + name + "' is already loaded.");
 
-            require([self._.pluginPrefix + module.name], function(loadedModule){
-                module.module = loadedModule;
-                module.loaded = true;
-                callback();
-            });
+                self._.loading = true;
+
+                require([self._.pluginPrefix + module.name], function(loadedModule){
+                    module.module = loadedModule;
+                    module.loaded = true;
+                    self._.loading = false;
+                    callback(loadedModule);
+                });
+            }
+            else{
+                setTimeout(function(){
+                    self.loadModule(name, callback);
+                }, 100);
+            }
 
         };
 
@@ -190,8 +201,8 @@ define(["module", "chain"], function(module, chain){
                     loadedModules: [],
                     notLoadedModules: notLoadedModules
                 },
-                function(modules){
-                    callback(modules);
+                function(context){
+                    callback(context.loadedModules);
                 });
         };
 
@@ -236,6 +247,20 @@ define(["module", "chain"], function(module, chain){
             if(!mod.started) throw new Error("ModuleService.getModule: module with name '" + name + "' has not been started.");
 
             return mod.module;
+        }
+
+        self.getModulesOfType = function(type){
+            var modules = [];
+            for(var x=0; x<self._.modules.length; x++){
+                var mod = self._.modules[x]; 
+                if(mod.type == type){
+                    if(!mod.loaded) throw new Error("ModuleService.getModule: module with name '" + mod.name + "' and type '" + mod.type + "' is not loaded.");
+                    if(!mod.initialized) throw new Error("ModuleService.getModule: module with name '" + mod.name + "' and type '" + mod.type + "' is not initialized.");
+                    if(!mod.started) throw new Error("ModuleService.getModule: module with name '" + mod.name + "' and type '" + mod.type + "' has not been started.");
+                    modules.push(mod);
+                }
+            }
+            return modules;
         }
     }
 

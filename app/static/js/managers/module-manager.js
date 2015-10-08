@@ -48,6 +48,10 @@ define(["moduleService", "chain"], function(ModuleServiceModule, chain){
         self.getModule = function(name){
             return self._.moduleService.getModule(name);
         };
+
+        self.getModulesOfType = function(type){
+            return self._.moduleService.getModulesOfType(type);
+        }
     }    
 
     return {

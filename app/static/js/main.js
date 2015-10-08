@@ -34,6 +34,7 @@ requirejs.config({
             "contentViewModel": "singleton!viewModel!views/content.html:view-models/content-view-model",
             "sidePaneViewModel": "singleton!viewModel!views/side-pane.html:view-models/side-pane-view-model",
             "popupViewModel": "singleton!viewModel!views/popup.html:view-models/popup-view-model",
+            "filterWorkflowViewModel": "singleton!viewModel!views/filter-workflow.html:view-models/filter-workflow-view-model",
 
             //services
             "mapService": "singleton!services/map-service",
@@ -59,13 +60,13 @@ requirejs.config({
                 //controls
                 {
                     name: "packages/control/slider",
-                    type: "slider"
+                    type: "control"
                 },
 
                 //filters 
                 {
                     name: "packages/filter/confidence",
-                    type: "confidence"
+                    type: "filter"
                 },
                 
                 //renderers

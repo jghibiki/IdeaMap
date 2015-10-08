@@ -3,7 +3,7 @@ define(["filterService"], function(FilterServiceModule){
     function FilterManager(){
         var self = this;
         
-        var self._ = {
+        self._ = {
             disposed: false,
             filterService: FilterServiceModule.get(),
             checkIfDisposed: function(){

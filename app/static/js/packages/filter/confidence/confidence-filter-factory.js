@@ -1,11 +1,11 @@
-define(["confidenceFilter"]), function(ConfidenceFilterModule){
+define(["confidenceFilter"], function(ConfidenceFilterModule){
     
 	function ConfidenceFilterFactory(){
 		var self = this;
 
-		self = {
+		self._ = {
 			disposed: false,
-			confidenceFilterModule: ConfidenceFilterModul,
+			confidenceFilterModule: ConfidenceFilterModule,
 
 			checkIfDisposed: function(){
 				if(self._.disposed){
@@ -17,10 +17,12 @@ define(["confidenceFilter"]), function(ConfidenceFilterModule){
 		self.getNew = function(){
 			self._.checkIfDisposed();
 			return self._.confidenceFilterModule.get();
-		}
+		};
+
+        self.friendlyName = "Confidence Filter"
 
         /* Fulfill module service contract*/
-        self.initialize = function(){};
+        self.init = function(){};
         self.start = function(){};
         self.stop = function(){};
 
@@ -30,7 +32,7 @@ define(["confidenceFilter"]), function(ConfidenceFilterModule){
 				self._.confidenceFilterModule = null;
 				self._.disposed = true;
 			}
-		}
+		};
 	}	
 
 	return {

@@ -1,4 +1,4 @@
-define(["ko"], function(ko){
+define(["ko", "filterWorkflowViewModel"], function(ko, FilterWorkflowViewModel){
 
     function SidePanelViewModel(){
         var self = this;
@@ -20,7 +20,7 @@ define(["ko"], function(ko){
             }
         }
 
-        self.controls = ko.observableArray([]);
+        self.filterWorkflowViewModel = FilterWorkflowViewModel.get();
 
 
         /*
@@ -99,6 +99,7 @@ define(["ko"], function(ko){
         self.shown = function(){
             self._.checkIfDisposed()
             if(!self._.shown){
+                self.filterWorkflowViewModel.shown();
                 self._.shown = true;
             }
         }
@@ -106,14 +107,17 @@ define(["ko"], function(ko){
         self.hidden = function(){
             self.checkIfDisposed();
             if(self._.shown){
+                self.filterWorkflowViewModel.hidden();
                 self._.shown = false;
-
             } 
         }
 
         self.dispose = function(){
             if(!self._.disposed){
                 self.hidden();
+                
+
+
                 self._.dispoed = true;
             }
         }

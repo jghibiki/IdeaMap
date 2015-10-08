@@ -68,7 +68,7 @@ define(["moduleManager", "chain"], function(ModuleManagerModule, chain){
                         self._.moduleManager.readyModule(self.controlType, function(module){
                             context = {"module" : module}
                             next(context);
-                        }
+                        });
                    })
                    .end({}, function(context){
                         self.control = context.module.get();
