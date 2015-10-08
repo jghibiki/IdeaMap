@@ -144,6 +144,7 @@ define(["ko", "chain", "moduleManager", "module"], function(ko, chain, ModuleMan
 
 		/* Listeners Subscription */
 		self.listenerSubscription = null;
+
 		/* Service Contracts */
 		self.init = function(){
 			if(!self._.initialized){
@@ -161,11 +162,12 @@ define(["ko", "chain", "moduleManager", "module"], function(ko, chain, ModuleMan
 				chain.get()
 					.cc(function(context, abort, next){
 						self._.moduleManager.readyModule(self._.defaultRenderer, function(module){
-							next(module);
+                            context = { "module": module }
+							next(context);
 						});
 					})
-					.end({}, function(module){
-						self.renderer(module);
+					.end({}, function(context){
+						self.renderer(context.module);
 
 						self._.getTweets();
 
