@@ -122,9 +122,9 @@ define(["module", "chain"], function(module, chain){
 
         self.loadModule = function(name, callback){
             if("string" !== typeof name) throw new Error("ModuleService.loadModule: invalid module name.")
+            var module = self._.getModule(name);
 
-            if(!self._.loading){
-                var module = self._.getModule(name);
+            if(!self._.loading && !module.loaded){
                 if(module === null) throw new Error("ModuleService.loadModule: failed to find registered module with the name: '" + name + "'.");
                 if(module.loaded) throw new Error("ModuleService.loadModule: module with the name: '" + name + "' is already loaded.");
 

@@ -1,4 +1,4 @@
-define(["ko", "filterManager", "chain"], function(ko, FilterManagerModule, chain){
+define(["ko", "filterWorkflowManager", "chain"], function(ko, FilterWorkflowManagerModule, chain){
     
     function FilterWorkflowViewModel(){
         var self = this;
@@ -6,8 +6,7 @@ define(["ko", "filterManager", "chain"], function(ko, FilterManagerModule, chain
         self._ = {
             shown: false,
             disposed: false,
-            timer: null,
-            filterManager: FilterManagerModule.get(),
+            filterWorkflowManager: FilterWorkflowManagerModule.get(),
 
             checkIfDisposed: function(){
                 if(self._.disposed){
@@ -16,21 +15,16 @@ define(["ko", "filterManager", "chain"], function(ko, FilterManagerModule, chain
             }
         };
 
-        self.filters = ko.observableArray();
-        self.loading = ko.observable(false);
+        self.filterSteps = ko.observable();
+        self.filterStepsSubscription = null;
 
         self.shown = function(){
             self._.checkIfDisposed();
             if(!self._.shown){
                 
-                self._.timer = setInterval(function(){
-                    var filters = self._.filterManager.getFilters();
-                    if(filters.length > 0){
-                        clearInterval(self._.timer);
-                        self.filters(self._.filterManager.getFilters());
-                        self.loading(false);
-                    }
-                }, 100);
+            self.filterStepsSubscription = self._.filterWorkflowManager.subscribeFilterSteps(function(value){
+                self.filterSteps(value);
+            });
 
             self._.shown = true;
             }
@@ -46,11 +40,15 @@ define(["ko", "filterManager", "chain"], function(ko, FilterManagerModule, chain
         self.dispose = function(){
             if(!self._.disposed){
                 
-                self._.filterManager.dispose();
-                self._.filterManager = null;
+                self._.filterWorkflowManager.dispose();
+                self._.filterWorkflowManager = null;
 
                 self._.disposed = true;
             }
+        }
+
+        self.createStep = function(){
+            alert("make select new step dialogue visible!")
         }
     }
 

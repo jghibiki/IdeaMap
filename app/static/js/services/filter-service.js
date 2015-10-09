@@ -10,7 +10,7 @@ define(["moduleManager", "chain"], function(ModuleManagerModule, chain){
             moduleManager: ModuleManagerModule.get(),
 
             checkIfInitialized: function(){
-                if(!self._.initlaized){
+                if(!self._.initialized){
                     throw new Error("FilterService needs to be initialized before it is used.");
                 }
             },
@@ -29,12 +29,15 @@ define(["moduleManager", "chain"], function(ModuleManagerModule, chain){
         self.filters = [];
 
         self.init = function(){
+            self._.checkIfDisposed();
             if(!self._.initialized){
                 self._.initialized = true;
             }
         }
 
         self.start = function(){
+            self._.checkIfDisposed();
+            self._.checkIfInitialized();
             if(!self._.started){
                 chain.get()
                     .cc(function(context, abort, next){

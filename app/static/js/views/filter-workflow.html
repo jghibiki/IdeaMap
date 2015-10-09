@@ -1,11 +1,11 @@
 <div>
-    <!-- ko if: loading -->
-    Loading...
-    <!-- /ko -->
-    
-    <!-- ko ifnot: loading -->
-        <div data-bind="foreach: filters">
-            <span data-bind="text: friendlyName"></span>
-        </div>
-    <!-- /ko -->
+    <h2>Filters:</h2>
+    <span>
+        <button data-bind="click: createStep">+</button>
+    </span>
+
+    <div data-bind="foreach: filterSteps">
+        <span data-bind="friendlyName">
+        <button>Edit</button>
+    </div>
 </div>

@@ -42,6 +42,7 @@ requirejs.config({
             "pipelineService": "singleton!services/pipeline-service",
             "controlService": "singleton!services/control-service",
             "filterService": "singleton!services/filter-service",
+            "filterWorkflowService": "singleton!services/filter-workflow-service",
 
             //managers
             "singletonManager": "managers/singleton-manager",
@@ -49,7 +50,8 @@ requirejs.config({
             "moduleManager": "singleton!managers/module-manager",
             "pipelineManager": "singleton!managers/pipeline-manager",
             "controlManager": "singleton!managers/control-manager",
-            "filterManager": "singleton!managers/filter-manager"
+            "filterManager": "singleton!managers/filter-manager",
+            "filterWorkflowManager": "singleton!managers/filter-workflow-manager"
 
         }
     },

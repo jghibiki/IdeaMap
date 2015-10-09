@@ -15,18 +15,21 @@ define(["ko",
             "pipelineService",
             "controlService",
             "filterService",
+            "filterWorkflowService"
         ],
         function(MapServiceModule,
                  ModuleServiceModule,
                  PipelineServiceModule,
                  ControlServiceModule,
-                 FilterServiceModule){
+                 FilterServiceModule,
+                 FilterWorkflowServiceModule){
             context.services = {
                 mapService: MapServiceModule.get(),
                 moduleService: ModuleServiceModule.get(),
                 pipelineService: PipelineServiceModule.get(),
                 controlService: ControlServiceModule.get(),
-                filterService: FilterServiceModule.get()
+                filterService: FilterServiceModule.get(),
+                filterWorkflowService: FilterWorkflowServiceModule.get()
             }
             next(context);
         });
@@ -57,6 +60,7 @@ define(["ko",
         context.services.pipelineService.init();
         context.services.controlService.init();
         context.services.filterService.init();
+        context.services.filterWorkflowService.init();
         next(context);
     }
 
@@ -77,6 +81,7 @@ define(["ko",
         context.services.moduleService.start();
         context.services.pipelineService.start();
         context.services.controlService.start();
+        context.services.filterService.start();
         context.services.filterService.start();
         next(context);
     }
