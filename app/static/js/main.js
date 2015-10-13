@@ -64,10 +64,18 @@ requirejs.config({
                     name: "packages/control/slider",
                     type: "control"
                 },
+                {
+                    name: "packages/control/text",
+                    type: "control"
+                },
 
                 //filters 
                 {
                     name: "packages/filter/confidence",
+                    type: "filter"
+                },
+                {
+                    name: "packages/filter/text",
                     type: "filter"
                 },
                 
