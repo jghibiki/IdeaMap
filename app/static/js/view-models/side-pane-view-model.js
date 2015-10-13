@@ -1,4 +1,4 @@
-define(["ko", "jquery", "chain", "ol", "pipelineManager"], function(ko, jquery, chain, ol, PipelineManagerModule){
+define(["ko", "filterWorkflowViewModel"], function(ko, FilterWorkflowViewModel){
 
     function SidePanelViewModel(){
         var self = this;
@@ -7,7 +7,6 @@ define(["ko", "jquery", "chain", "ol", "pipelineManager"], function(ko, jquery, 
             shown: false,
             disposed: false,
             loading: false,
-	    pipelineManager: PipelineManagerModule.get(),
             
             checkIfDisposed: function(){
                 if(self._.disposed){
@@ -21,12 +20,14 @@ define(["ko", "jquery", "chain", "ol", "pipelineManager"], function(ko, jquery, 
             }
         }
 
+        self.filterWorkflowViewModel = FilterWorkflowViewModel.get();
 
+
+        /*
 
         self.polarityFilter = ko.observable()
         self.tagFilterRaw = ko.observable("")
         self.tagFilter = ko.computed(function(){
-            /*
             if(self.tagFilterRaw() !== undefined 
                 || self.tagFilterRaw() !== null){
                 return self.tagFilterRaw().replace("#", "").replace(" ", "").split(",");
@@ -34,11 +35,9 @@ define(["ko", "jquery", "chain", "ol", "pipelineManager"], function(ko, jquery, 
             else{
                 return null;
             }
-            */
         })
 
         self.polarityFilterSubscription = self.polarityFilter.subscribe(function(value){
-            /*
             for(var x=0; x < self.tweetFeatureMap.length; x++){
                 if(value !== "both"){
                     if(self.tweetFeatureMap[x].tweet.classification !== value){
@@ -52,11 +51,9 @@ define(["ko", "jquery", "chain", "ol", "pipelineManager"], function(ko, jquery, 
                     self.tweetFeatureMap[x].marker.setVisible(true);
                 }
             }
-            */
         });
 
         self.tagFilterSubscription = self.tagFilter.subscribe(function(value){
-            /*
             if(value !== null && value !== undefined && value.length > 0){
                 for(var x=0; x<self.tweetFeatureMap.length; x++){
                     var hasTag = false;
@@ -79,14 +76,12 @@ define(["ko", "jquery", "chain", "ol", "pipelineManager"], function(ko, jquery, 
                     }
                 }
             }
-            */
         });
 
 
         self.confidenceRatingFilter = ko.observable(0)
 
         self.confidenceRatingFilterSubscription = self.confidenceRatingFilter.subscribe(function(value){
-            /*
             var numVal = Number(value); 
 
             for(var x=0; x<self.tweetFeatureMap.length; x++){
@@ -97,13 +92,14 @@ define(["ko", "jquery", "chain", "ol", "pipelineManager"], function(ko, jquery, 
                     self.tweetFeatureMap[x].marker.setMap(null); 
                 }
             }
-            */
         }); 
     
+        */
 
         self.shown = function(){
             self._.checkIfDisposed()
             if(!self._.shown){
+                self.filterWorkflowViewModel.shown();
                 self._.shown = true;
             }
         }
@@ -111,14 +107,17 @@ define(["ko", "jquery", "chain", "ol", "pipelineManager"], function(ko, jquery, 
         self.hidden = function(){
             self.checkIfDisposed();
             if(self._.shown){
+                self.filterWorkflowViewModel.hidden();
                 self._.shown = false;
-
             } 
         }
 
         self.dispose = function(){
             if(!self._.disposed){
                 self.hidden();
+                
+
+
                 self._.dispoed = true;
             }
         }

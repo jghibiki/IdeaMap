@@ -14,6 +14,10 @@ define(["pipelineService"], function(PipelineServiceModule){
 		self.deregisterEventListener = function(ev, callback){
 			self._.pipelineService.deregisterEventListener(ev, callback);
 		}
+
+        self.forceRender = function(){
+            self._.pipelineService._.beginPipeline(self._.pipelineService.tweets());
+        }
 	}	
 
 	return {

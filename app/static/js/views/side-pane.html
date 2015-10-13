@@ -1,35 +1,10 @@
-<div class="center">
-    <div>
+<div >
+    <div class="center">
         <h1>IdeaMap</h1> 
     </div>
     <hr>
     <div>
-        <div>
-            <h3>Filters:</h3>
-            <div>
-                <b>Polarity:</b>
-                <select data-bind="value: polarityFilter" name="polarity">
-                    <option value="both">Both</option>
-                    <option value="pos">Positive Only</option>
-                    <option value="neg">Negative Only</option>
-                </select>
-            </div>
-            <!--
-            <br>
-            <div>
-                <b>Tags:</b>
-                <input data-bind="value: tagFilterRaw" type="text" placeholder="#<tag name>">
-                <br>
-                <em>Separate multiple tags with a comma</em>
-            </div>
-            -->
-            <br>
-            <div>
-                <b>Minimum Confidence Rating:</b>
-                <br>
-                <input data-bind="value: confidenceRatingFilter" type ="range" min ="0" max="1" step =".05" value ="100" />
-                <span data-bind="text: confidenceRatingFilter"></span>
-            </div>
-        </div>
+        <!-- ko content: filterWorkflowViewModel -->
+        <!-- /ko -->
     </div>
 </div>
