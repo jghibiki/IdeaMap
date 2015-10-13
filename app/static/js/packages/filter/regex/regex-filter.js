@@ -43,14 +43,17 @@ define(["chain", "ko", "controlManager"], function(chain, ko, ControlManagerModu
         self.filter = function(tweets){
             self._.checkAll();
             var validTweets = [];
-            for(var x=0 ; x<tweets.length; x++){
-                if(self.control.value() !== null || self.control.value() !== undefined || self.control.value() !== ""){
-                    if(tweets[x].text.search(new RegExp(self.control.value(), 'i')) > -1){
+            if(self.control.value() !== null || self.control.value() !== undefined || self.control.value() !== ""){
+                for(var x=0 ; x<tweets.length; x++){
+                        if(tweets[x].text.search(new RegExp(self.control.value(), 'i')) > -1){
                         validTweets.push(tweets[x]);
                     }
                 }
+                return validTweets;
             }
-            return validTweets;
+            else{
+                return tweets;
+            }
         }
 
         self.init = function(){
