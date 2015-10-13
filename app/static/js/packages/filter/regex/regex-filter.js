@@ -1,6 +1,6 @@
 define(["chain", "ko", "controlManager"], function(chain, ko, ControlManagerModule){
     
-    function TextFilter(){
+    function RegexFilter(){
         var self = this;
 
         self._ = {
@@ -13,19 +13,19 @@ define(["chain", "ko", "controlManager"], function(chain, ko, ControlManagerModu
 
             checkIfInitialized: function(){
                 if(!self._.initialized){
-                    throw new Error("This TextFilter must be initialized before it is used.");
+                    throw new Error("This RegexFilter must be initialized before it is used.");
                 }
             },
 
             checkIfStarted: function(){
                 if(!self._.started){
-                    throw new Error("This TextFilter must be started before it is used.");
+                    throw new Error("This RegexFilter must be started before it is used.");
                 }
             },
 
             checkIfDisposed: function(){
                 if(self._.disposed){
-                    throw new Error("This TextFilter has already been disposed.");
+                    throw new Error("This RegexFilter has already been disposed.");
                 }
             },
             checkAll: function(){
@@ -35,7 +35,7 @@ define(["chain", "ko", "controlManager"], function(chain, ko, ControlManagerModu
             }
         };
         
-        self.friendlyName = ko.observable("Text Filter");
+        self.friendlyName = ko.observable("Regular Expression Filter");
         self.controlType = "packages/control/text";
         self.control = null;
         self.controlSubscription = null;
@@ -45,7 +45,7 @@ define(["chain", "ko", "controlManager"], function(chain, ko, ControlManagerModu
             var validTweets = [];
             for(var x=0 ; x<tweets.length; x++){
                 if(self.control.value() !== null || self.control.value() !== undefined || self.control.value() !== ""){
-                    if(tweets[x].text.indexOf(self.control.value()) > -1){
+                    if(tweets[x].text.search(new RegExp(self.control.value(), 'i')) > -1){
                         validTweets.push(tweets[x]);
                     }
                 }
@@ -97,10 +97,10 @@ define(["chain", "ko", "controlManager"], function(chain, ko, ControlManagerModu
 
     return {
         get: function(){
-            return new TextFilter();
+            return new RegexFilter();
         },
         type: function(){
-            return TextFilter; 
+            return RegexFilter; 
         }
     }
 

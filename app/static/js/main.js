@@ -78,6 +78,10 @@ requirejs.config({
                     name: "packages/filter/text",
                     type: "filter"
                 },
+                {
+                    name: "packages/filter/regex",
+                    type: "filter"
+                },
                 
                 //renderers
                 {
