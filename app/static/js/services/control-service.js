@@ -1,4 +1,4 @@
-define(["moduleManager"], function(moduleManager){
+define(["ko", "chain", "moduleManager"], function(ko, chain,  ModuleManagerModule){
     
     function ControlService(){
         var self = this;
@@ -7,6 +7,7 @@ define(["moduleManager"], function(moduleManager){
             initialized: false,
             started: false,
             disposed: false,
+            moduleManager: ModuleManagerModule.get(),
 
             checkIfInitialized: function(){
                 if(!self._.initlaized){
@@ -31,9 +32,20 @@ define(["moduleManager"], function(moduleManager){
             }
         }
 
+        self.controls = ko.observableArray();
+
         self.start = function(){
             if(!self._.started){
-                self._.started = true;
+                chain.get()
+                    .cc(function(context, abort, next){
+                        self._.moduleManager.readyModulesOfType("control", function(modules){
+                            self.controls(modules);
+                            next();
+                        })
+                    })
+                    .end({},function(){
+                        self._.started = true;
+                    });
             }
         }
 
@@ -47,6 +59,15 @@ define(["moduleManager"], function(moduleManager){
             if(!self._.disposed){
                 self._.started = false;
             }    
+        }
+
+        self.getControl = function(name){
+            var controls = self.controls();
+            for(var x=0; x<controls.length; x++){
+                if(controls[x].type == name){
+                    return controls[x].getNew();
+                }
+            }
         }
     }
 

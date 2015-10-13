@@ -1,10 +1,10 @@
 define(["ko", "filterManager"], function(ko, FilterManagerModule){
 
-    function FilterStep(id, filterId, friendlyName){
+
+    function AvailableFilter(filter){
         var self = this;
-        self.id = id;
-        self.filterId = id;
-        self.friendlyName = ko.observable(friendlyName);         
+        self.friendlyName = filter.friendlyName;
+        self.module = filter;
     }
     
     function FilterWorkflowService(){
@@ -30,19 +30,11 @@ define(["ko", "filterManager"], function(ko, FilterManagerModule){
                 if(self._.disposed){
                     throw new Error("FilterWorkflowService has already been disposed.");
                 }
-            },
-            newGuid: function(){
-                var d = new Date().getTime();
-                var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-                    var r = (d + Math.random()*16)%16 | 0;
-                    d = Math.floor(d/16);
-                    return (c=='x' ? r : (r&0x3|0x8)).toString(16);
-                });
-                return uuid;
             }
         };
 
-        self.filters = [];
+        self.availableFilters = ko.observable();
+        self.availableFilterSubscription = null;
         self.steps = ko.observableArray(); 
 
 
@@ -57,7 +49,15 @@ define(["ko", "filterManager"], function(ko, FilterManagerModule){
             self._.checkIfDisposed();
             self._.checkIfInitialized();
             if(!self._.started){
-
+                
+                self.availableFiltersSubscription = self._.filterManager.subscribeFilters(function(value){
+                    var filters = [];
+                    for(var x=0; x<value.length; x++){
+                        filters.push(new AvailableFilter(value[x]));
+                    }
+                    self.availableFilters(filters);
+                });
+            
                 self._.started = true;
             }   
         };
@@ -71,32 +71,26 @@ define(["ko", "filterManager"], function(ko, FilterManagerModule){
         };
 
         self.addFilter = function(filter){
-            self.steps.push(
-                new FilterStep(
-                    self._.newGuid(),
-                    filter.guid,
-                    filter.friendlyName
-                )
-            );
-            self.filters.push(filter);
+            var mod = filter.module.getNew();
+            mod.init();
+            mod.start();
+            self.steps.push(mod);
         };
 
         self.removeFilter = function(filter){
-            if(self.filters.indexOf(filter) !== -1){
-                self.filters.remove(filter);
+            if(self.steps.indexOf(filter) !== -1){
+                self.steps.remove(filter);
             } 
-            var steps = self.steps();
-            for(var x=0; x<steps.length; x++){
-                if(steps[x].filterId === filter.guid){
-                    self.steps.splce(x, 1);
-                    break;
-                }
-            }
         }
+
 
         self.subscribeFilterSteps = function(callback){
             return self.steps.subscribe(callback);
         };
+
+        self.subscribeAvailableFilters = function(callback){
+            return self.availableFilters.subscribe(callback);
+        }
 
         self.dispose = function(){
             if(!self._.disposed){

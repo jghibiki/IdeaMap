@@ -15,8 +15,12 @@ define(["filterService"], function(FilterServiceModule){
 
         self.getFilters = function(){
             self._.checkIfDisposed();
-            return self._.filterService.filters;
+            return self._.filterService.filters();
         };
+
+        self.subscribeFilters = function(callback){
+            return self._.filterService.subscribeFilters(callback);
+        }
 
         self.dispose = function(){
             if(!self._.disposed){

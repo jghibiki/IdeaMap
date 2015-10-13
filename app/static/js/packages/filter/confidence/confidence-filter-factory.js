@@ -17,7 +17,7 @@ define(["confidenceFilter"], function(ConfidenceFilterModule){
 		self.getNew = function(){
 			self._.checkIfDisposed();
 			var filter = self._.confidenceFilterModule.get();
-            filter.guid = self.newGuid();
+            filter.id = self.newGuid();
             return filter;
 		};
 

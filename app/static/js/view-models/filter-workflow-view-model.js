@@ -1,4 +1,4 @@
-define(["ko", "filterWorkflowManager", "chain"], function(ko, FilterWorkflowManagerModule, chain){
+define(["ko", "filterWorkflowManager", "filterManager", "pipelineManager", "chain"], function(ko, FilterWorkflowManagerModule, FilterManagerModule, PipelineManagerModule, chain){
     
     function FilterWorkflowViewModel(){
         var self = this;
@@ -7,6 +7,8 @@ define(["ko", "filterWorkflowManager", "chain"], function(ko, FilterWorkflowMana
             shown: false,
             disposed: false,
             filterWorkflowManager: FilterWorkflowManagerModule.get(),
+            filterManager: FilterManagerModule.get(),
+            pipelineManager: PipelineManagerModule.get(),
 
             checkIfDisposed: function(){
                 if(self._.disposed){
@@ -15,6 +17,11 @@ define(["ko", "filterWorkflowManager", "chain"], function(ko, FilterWorkflowMana
             }
         };
 
+        self.state = ko.observable("filters");
+        self.currentFilter = ko.observable(null);
+        self.currentFilterListing = ko.observable(null);
+        self.availableFilters = ko.observable();
+        self.availableFiltersSubscription = null;
         self.filterSteps = ko.observable();
         self.filterStepsSubscription = null;
 
@@ -24,6 +31,11 @@ define(["ko", "filterWorkflowManager", "chain"], function(ko, FilterWorkflowMana
                 
             self.filterStepsSubscription = self._.filterWorkflowManager.subscribeFilterSteps(function(value){
                 self.filterSteps(value);
+            });
+
+
+            self.availableFiltersSubscription = self._.filterWorkflowManager.subscribeAvailableFilters(function(value){
+                self.availableFilters(value); 
             });
 
             self._.shown = true;
@@ -47,9 +59,39 @@ define(["ko", "filterWorkflowManager", "chain"], function(ko, FilterWorkflowMana
             }
         }
 
-        self.createStep = function(){
-            alert("make select new step dialogue visible!")
+        self.selectNewFilter = function(){
+            self.state("selectNewFilter");
         }
+
+        self.cancelSelectNewFilter = function(){
+            self.state("filters");
+        }
+
+        self.createNewFilter = function(){
+            self._.filterWorkflowManager.addFilter(this);
+            self.state("filters");
+        }
+
+        self.editFilter = function(){
+            self.currentFilter(this);
+            self.currentFilterListing(this);
+            self.state("editFilter");
+        }
+
+        self.submitEditFilter = function(){
+            self.state("filters");
+            self.currentFilter(null);
+            self._.pipelineManager.forceRender();
+        }
+
+        self.removeCurrentFilter = function(){
+            var filter = self.currentFilter();
+            self._.filterWorkflowManager.removeFilter(filter);
+            self.state("filters");
+            self.currentFilter(null);
+            self._.pipelineManager.forceRender();
+        }
+
     }
 
     return {

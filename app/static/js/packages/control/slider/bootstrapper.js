@@ -1,4 +1,4 @@
-define(["slider"], function(slider){
-	return slider.get();
+define(["sliderFactory"], function(SliderFactoryModule){
+	return SliderFactoryModule.get();
 })
 

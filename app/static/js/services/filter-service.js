@@ -1,4 +1,4 @@
-define(["moduleManager", "chain"], function(ModuleManagerModule, chain){
+define(["moduleManager", "chain", "ko"], function(ModuleManagerModule, chain, ko){
     
     function FilterService(){
         var self = this;
@@ -26,7 +26,7 @@ define(["moduleManager", "chain"], function(ModuleManagerModule, chain){
             }
         }
 
-        self.filters = [];
+        self.filters = ko.observableArray();
 
         self.init = function(){
             self._.checkIfDisposed();
@@ -42,7 +42,7 @@ define(["moduleManager", "chain"], function(ModuleManagerModule, chain){
                 chain.get()
                     .cc(function(context, abort, next){
                         self._.moduleManager.readyModulesOfType("filter", function(modules){
-                            self.filters = modules;
+                            self.filters(modules);
                             next();
                         })
                     })
@@ -50,6 +50,10 @@ define(["moduleManager", "chain"], function(ModuleManagerModule, chain){
                         self._.started = true;
                     });
             }
+        }
+
+        self.subscribeFilters = function(callback){
+            return self.filters.subscribe(callback);
         }
 
         self.stop = function(){

@@ -20,6 +20,10 @@ define(["filterWorkflowService"], function(FilterWorkflowServiceModule){
             return self._.filterWorkflowService.subscribeFilterSteps(callback);
         }
 
+        self.subscribeAvailableFilters = function(callback){
+            return self._.filterWorkflowService.subscribeAvailableFilters(callback);
+        }
+
         self.dispose = function(){
             if(!self._.disposed){
                 

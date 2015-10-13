@@ -2,7 +2,7 @@ define(["sliderViewModel"], function(SliderViewModelModule){
 	function SliderFactory(){
 		var self = this;
 
-		self = {
+		self._ = {
 			disposed: false,
 			sliderViewModelModule: SliderViewModelModule,
 
@@ -12,6 +12,8 @@ define(["sliderViewModel"], function(SliderViewModelModule){
 				}
 			}
 		};
+
+        self.type = "packages/control/slider";
 
 		self.getNew = function(){
 			self._.checkIfDisposed();
@@ -39,4 +41,4 @@ define(["sliderViewModel"], function(SliderViewModelModule){
 			return SliderFactory;
 		}
 	}
-}
+})

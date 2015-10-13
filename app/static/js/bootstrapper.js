@@ -83,6 +83,7 @@ define(["ko",
         context.services.controlService.start();
         context.services.filterService.start();
         context.services.filterService.start();
+        context.services.filterWorkflowService.start();
         next(context);
     }
 

@@ -1,4 +1,4 @@
-define(["moduleManager", "chain"], function(ModuleManagerModule, chain){
+define(["chain", "ko", "controlManager"], function(chain, ko, ControlManagerModule){
     
     function ConfidenceFilter(){
         var self = this;
@@ -8,7 +8,8 @@ define(["moduleManager", "chain"], function(ModuleManagerModule, chain){
             started: false,
             disposed: false,
 
-            moduleManager: ModuleManagerModule.get(),
+            controlManager: ControlManagerModule.get(),
+
 
             checkIfInitialized: function(){
                 if(!self._.initialized){
@@ -34,7 +35,7 @@ define(["moduleManager", "chain"], function(ModuleManagerModule, chain){
             }
         };
         
-        self.friendlyName = "Confidence Filter";
+        self.friendlyName = ko.observable("Confidence Filter");
         self.controlType = "packages/control/slider";
         self.control = null;
         self.controlSubscription = null;
@@ -43,44 +44,34 @@ define(["moduleManager", "chain"], function(ModuleManagerModule, chain){
             self._.checkAll();
             var validTweets = [];
             for(var x=0 ; x<tweets.length; x++){
-                if(tweets[x].confidenceRating > self.control.value()){
+                if(Math.abs(tweets[x].rating) > self.control.value()){
                     validTweets.push(tweets[x]);
                 }
             }
             return validTweets;
         }
 
-        self.initialize = function(){
+        self.init = function(){
             self._.checkIfDisposed(); 
-            if(!self._.initialied){
-                self._.initialied = true;
+            if(!self._.initialized){
+                self._.initialized = true;
 
             }
         }
 
         self.start = function(){
             self._.checkIfDisposed();
-            self._.checkIfInitialied();
+            self._.checkIfInitialized();
             if(!self._.started){
 
-                chain.get()
-                   .cc(function(context, abort, next){
-                        self._.moduleManager.readyModule(self.controlType, function(module){
-                            context = {"module" : module}
-                            next(context);
-                        });
-                   })
-                   .end({}, function(context){
-                        self.control = context.module.get();
-                        self._.started = true;
-                   });
-
+                self.control = self._.controlManager.getControl(self.controlType);
+                self._.started = true;
             }
         }
 
         self.stop = function(){
             self._.checkIfDisposed();
-            self._.checkIfInitialied(); 
+            self._.checkIfInitialized(); 
             if(self._.started){
                 self._.started = false;
             }

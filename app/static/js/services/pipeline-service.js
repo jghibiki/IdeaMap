@@ -1,4 +1,4 @@
-define(["ko", "chain", "moduleManager", "module"], function(ko, chain, ModuleManagerModule, module){
+define(["ko", "chain", "moduleManager", "module", "filterWorkflowManager"], function(ko, chain, ModuleManagerModule, module, FilterWorkflowManagerModule){
 	function PipelineService(){
 		var self = this;
 
@@ -9,6 +9,7 @@ define(["ko", "chain", "moduleManager", "module"], function(ko, chain, ModuleMan
 			loadTimer: null,
 			loading: false,
 			moduleManager: ModuleManagerModule.get(),
+            filterWorkflowManager: FilterWorkflowManagerModule.get(),
 			defaultRenderer: module.config()["defaultRenderer"],
 			clearLayerCallback: null,
 
@@ -118,9 +119,11 @@ define(["ko", "chain", "moduleManager", "module"], function(ko, chain, ModuleMan
 			},
 
 			applyFilters: function(context, abort, next){
+                var tweets = context.tweets;
 				for(var x=0; x<self.filters().length; x++){
-					self.filters()[x](context);
+					tweets = self.filters()[x].filter(tweets);
 				}
+                context.tweets = tweets;
 				next(context);
 			},
 
@@ -170,6 +173,13 @@ define(["ko", "chain", "moduleManager", "module"], function(ko, chain, ModuleMan
 						self.renderer(context.module);
 
 						self._.getTweets();
+
+                        self.filterSubscription = self._.filterWorkflowManager.subscribeFilterSteps(function(value){
+                            self.filters(value);
+                            setTimeout(function(){
+                                self._.beginPipeline(self.tweets());
+                            }, 1000);
+                        });
 
 						self.listenerSubscription = self.listeners.subscribe(function(value){
 							self._.beginPipeline(self.tweets());

@@ -190,7 +190,7 @@ define(["module", "chain"], function(module, chain){
 
             var notLoadedModules = [];
             for(var x=0; x<self._.modules.length; x++){
-                if(self._.modules[x].type == "filter"){
+                if(self._.modules[x].type == type){
                     notLoadedModules.push(self._.modules[x]);
                 }
             }
