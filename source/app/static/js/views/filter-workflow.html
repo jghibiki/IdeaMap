@@ -1,0 +1,66 @@
+<div>
+    <!-- ko if: state() === "filters" -->
+        <h2>Filters</h2>
+        <span>
+            <button data-bind="click: selectNewFilter">+</button>
+        </span>
+
+        <table data-bind="foreach: filterSteps" class="fullSize">
+            <tr data-bind="css: {'pure-table-odd': ($index() % 2 === 0)}">
+                <td>
+                    <div class="pure-g">
+                        <div class="pure-u-4-5">
+                            <span data-bind="text: friendlyName"></span>
+                        </div>
+                        <div class="pure-u-1-5">
+                            <button data-bind="click: $parent.editFilter">Edit</button>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    <!-- /ko -->
+    
+    <!-- ko if: state() === "selectNewFilter" -->
+        <h2>Add Filter</h2>
+        <span>
+            <button data-bind="click: cancelSelectNewFilter">x</button>
+        </span>
+        <table data-bind="foreach: availableFilters" class="pure-table fullSize">
+            <tr data-bind="css: {'pure-table-odd': ($index() % 2 === 0)}">
+                <td>
+                    <div class="pure-g">
+                        <div class="pure-u-4-5">
+                            <span data-bind="text: friendlyName"></span>
+                        </div>
+                        <div class="pure-u-1-5">
+                            <button data-bind="click: $parent.createNewFilter">+</button>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    <!-- /ko -->
+    
+    <!-- ko if: state() === "editFilter" -->
+        <h2>Edit Filter</h2>
+        <div>
+            <p>
+            
+                <div data-bind="text: currentFilter().friendlyName"></div>
+                
+                <div>Filter Name: <input data-bind="value: currentFilter().friendlyName"/></div>
+
+                <!-- ko content: currentFilter().control -->
+                <!-- /ko -->
+
+                <br>
+                <button data-bind="click: removeCurrentFilter">Remove Filter</button>
+            </p>
+        </div>
+        <span>
+            <button data-bind="click: submitEditFilter">Done</button>
+        </span>
+    <!-- /ko -->
+
+</div>
