@@ -26,8 +26,28 @@ train_data = []
 train_labels = []
 test_data = []
 test_labels = []
-currentFrame = None
 classifier_liblinear = svm.LinearSVC()
+datestamp = datetime.datetime.utcnow() + datetime.timedelta(0, 60)
+
+
+def printUpdate(counter):
+    global datestamp
+    if(datestamp < datetime.datetime.utcnow()):
+        print "Tweets Processed: " + str(counter)
+        datestamp = datetime.datetime.utcnow() + datetime.timedelta(0, 60)
+
+def checkFrame(frame):
+    if(frame.end < datetime.datetime.utcnow()):
+        start = datetime.datetime.utcnow()
+        end = start + datetime.timedelta(0,60)
+        frame = Frame.create(start=start, end=end)
+        return frame
+    else:
+        return frame
+
+def getFrame():
+    frame = Frame.select().order_by(Frame.end.desc()).first()
+    return frame
 
 def classify(data):
     try:
@@ -39,17 +59,6 @@ def classify(data):
         print data.original
         return None
 
-def prune_old_tweets(newFrame, counter):
-    global currentFrame
-    if(currentFrame == None):
-        currentFrame = newFrame 
-    
-    if(newFrame != currentFrame):
-        print "Pruning Frame: " + str(currentFrame)  + " Total Tweets: " + str(counter)
-        with db.atomic():
-            diff = currentFrame-1
-            ProcessedTweet.delete().where(ProcessedTweet.frame == diff).execute()
-        currentFrame = newFrame
 
 def usage():
     print("Usage:")
@@ -57,14 +66,9 @@ def usage():
 
 
 
-def GracefulExit(_signal, frame):
-    if _signal is signal.SIGINT:
-        print "\nShutting down..."
-        sys.exit(0)
 
 
 if __name__ == '__main__':
-    signal.signal(signal.SIGINT, GracefulExit)
 
     classes = ['pos', 'neg']
 
@@ -94,7 +98,8 @@ if __name__ == '__main__':
         vectorizer = TfidfVectorizer(min_df=5,
                                      max_df = 0.8,
                                      sublinear_tf=True,
-                                     use_idf=True)
+                                     use_idf=True,
+                                     decode_error="ignore")
 
         print "vectorizing training set..."
         train_vectors = vectorizer.fit_transform(train_data)
@@ -112,33 +117,28 @@ if __name__ == '__main__':
     print "starting db loop..."
     counter = 0
     while True:
-        lastFrame = None
         if Tweet.select().count()>0:
             for trow in Tweet.select().order_by(Tweet.created_at.desc()):
                 counter += 1
                 classified_tweet = classify(trow.text)
+                frame = getFrame()
                 if classified_tweet is not None:
                     with db.atomic():
                         ProcessedTweet.create(
-								entities=trow.entities, 
-								process_date=datetime.datetime.utcnow(), 
-								created_at=trow.created_at, 
-								coordinates=trow.coordinates, 
-								place=trow.place,
-								text=trow.text, 
-								original=trow.original, 
-								rating=classified_tweet[1], 
-								classification=classified_tweet[0], 
-								frame=trow.frame)
+                                entities=trow.entities,
+                                process_date=datetime.datetime.utcnow(),
+                                created_at=trow.created_at,
+                                coordinates=trow.coordinates,
+                                place=trow.place,
+                                text=trow.text,
+                                original=trow.original,
+                                rating=classified_tweet[1],
+                                classification=classified_tweet[0],
+                                frame=trow.frame.id)
 
-                frame = trow.frame
                 with db.atomic():
                     trow.delete_instance()
-                prune_old_tweets(frame, counter)
-                lastFrame = frame
-        if lastFrame is not None:
-            prune_old_tweets(lastFrame, counter)
-            lastFrame = None
+                printUpdate(counter)
         time.sleep(1)
-
+        printUpdate(counter)
 
