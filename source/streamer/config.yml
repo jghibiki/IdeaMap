@@ -4,18 +4,38 @@ cleaner: False
 
 # configures twitter api credentials
 twitter:
-    access_token: "3949049892-7lerWrlf8LBfkTxUy9gmPFFKvFUwmWGbZsKHz3d"
-    access_token_secret: "Jm2iAbHsyitvqENt8U9RjQlRN6y5YzOdy9PxoakIYCCU5"
-    consumer_key: "fItUDcblEvetpvU2eXqnIAMr9"
-    consumer_secret: "mxiehpqbIveC8einQZImJZzAQHFHhW4y6G1a3bLZNNEk6rXjKg"
+    #superkahnsuper
+    access_token: "3950498298-jtcmpaljHCdTmEqVseOzaPxSIcPlNL1VISzJICG"
+    access_token_secret: "whgUDaolUJbzxr7xFIZpMa0s97exEX5HEaAUCXSUzVOHK"
+    consumer_key: "ffcWJGRXcKWCBfFjIrqW99Atr"
+    consumer_secret: "J57gvsIsPlyAJi8elEojO953pzKS0YnBYQY8TIFBB83IMjXM6g"
+    
+    # superkirkissuper
+    #access_token: "3949049892-7lerWrlf8LBfkTxUy9gmPFFKvFUwmWGbZsKHz3d"
+    #access_token_secret: "Jm2iAbHsyitvqENt8U9RjQlRN6y5YzOdy9PxoakIYCCU5"
+    #consumer_key: "fItUDcblEvetpvU2eXqnIAMr9"
+    #consumer_secret: "mxiehpqbIveC8einQZImJZzAQHFHhW4y6G1a3bLZNNEk6rXjKg"
 
 # location bounding box
 location:
-    lon1: -137.8
-    lat1: 21.4
+    # entire US
+    #lon1: -137.8
+    #lat1: 21.4
+
+    #lon2: -66.5
+    #lat2: 51.6
+
+    ## west US
+    #lon1: -137.8
+    #lat1: 21.4
+
+    #lon2: -101.35 
+    #lat2: 51.6
     
+    # east US
+    lon1: -101.35
+    lat1: 21.4
+
     lon2: -66.5
     lat2: 51.6
-
-
 

@@ -16,6 +16,7 @@ with open("config.yml", "rb") as f:
     config = load(f)
 
 
+count = 0
 
 #Variables that contains the user credentials to access Twitter API
 access_token = config["twitter"]["access_token"]
@@ -43,7 +44,6 @@ def getFrame():
     return frame
 
 
-count = 0
 
 
 class StreamListener(tweepy.StreamListener):
@@ -59,8 +59,9 @@ class StreamListener(tweepy.StreamListener):
 
                     frame = getFrame()
                     if(datetime.datetime.utcnow() > frame.end):
-                        global q
-                        q.put_nowait(frame.id)
+                        if config["cleaner"]:
+                            global q
+                            q.put_nowait(frame.id)
 
                         print "Time Frame: " + str(frame.id) + " Total Tweets: " + str(count)
                         frame = checkFrame(frame)
