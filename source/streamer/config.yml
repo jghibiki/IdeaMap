@@ -1,6 +1,6 @@
 
 # toggles tweet clean up on/off
-cleaner: True
+cleaner: False
 
 # configures twitter api credentials
 twitter:

@@ -9,7 +9,7 @@ with open(path.abspath("../models/config.yml"), "rb") as f:
 
 db_config = config["database"]
 
-db = PostgresqlDatabase(db_config["url"], user=db_config["username"], password=db_config["password"])
+db = PostgresqlDatabase(db_config["db"], host=db_config["url"], user=db_config["username"], password=db_config["password"])
 
 class BaseModel(Model):
     class Meta:
