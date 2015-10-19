@@ -17,6 +17,7 @@ with open("config.yml", "rb") as f:
 
 
 count = 0
+datestamp = datetime.datetime.utcnow() + datetime.timedelta(0, 60)
 
 #Variables that contains the user credentials to access Twitter API
 access_token = config["twitter"]["access_token"]
@@ -55,17 +56,20 @@ class StreamListener(tweepy.StreamListener):
             if ("coordinates" in data and data["coordinates"] != None) or ("place" in data and data["place"] != None):
                 if "hiring" not in data["text"].lower() and "weather" not in data["text"].lower():
 
-                    global count
-
                     frame = getFrame()
                     if(datetime.datetime.utcnow() > frame.end):
                         if config["cleaner"]:
                             global q
                             q.put_nowait(frame.id)
 
-                        print "Time Frame: " + str(frame.id) + " Total Tweets: " + str(count)
                         frame = checkFrame(frame)
 
+                    global datestamp
+                    if(datestamp < datetime.datetime.utcnow()):
+                        datestamp = datetime.datetime.utcnow() + datetime.timedelta(0,60)
+
+                        global count
+                        print "Time Frame: " + str(frame.id) + " Total Tweets: " + str(count)
 
                     count += 1
 
@@ -73,6 +77,7 @@ class StreamListener(tweepy.StreamListener):
 
                     coord = None
                     place = None
+
 
                     if data["coordinates"] != None:
                         coord = data["coordinates"]
