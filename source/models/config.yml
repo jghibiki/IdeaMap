@@ -1,0 +1,5 @@
+
+database:
+    url: "leet_tweets"
+    username: "tweet_is_leet"
+    password: "leet_is_tweet"

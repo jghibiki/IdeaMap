@@ -8,18 +8,42 @@ import tweepy, datetime
 from string import punctuation
 from multiprocessing import Process, Queue
 from time import sleep
+from yaml import load
+
+# Load config file
+config = None
+with open("config.yml", "rb") as f:
+    config = load(f)
 
 
 
 #Variables that contains the user credentials to access Twitter API
-access_token = "43207500-vVaHcVk1OhdGrmp4bYnnlpGqY04gJ1l3VHKiAVxfC"
-access_token_secret = "4HCkIZa7rZDSbU7BOZS75JAdXe0kaS3VK8lv9rfF81pY2"
-consumer_key = "9YB1LjysXrJUXhfPfdnfyB1lP"
-consumer_secret = "xEWYrXMcyQFrKndrl10s8193HjjuBtvGE9yybrk5TQjvrYnsQy"
+access_token = config["twitter"]["access_token"]
+access_token_secret = config["twitter"]["access_token_secret"]
+consumer_key = config["twitter"]["consumer_key"]
+consumer_secret = config["twitter"]["consumer_secret"]
+location = (
+    config["location"]["lon1"],
+    config["location"]["lat1"],
+    config["location"]["lon2"],
+    config["location"]["lat2"]
+)
 
-frameTime = datetime.datetime.utcnow()
-frame = 0
-count = 0 
+def checkFrame(frame):
+    if(frame.end < datetime.datetime.utcnow()):
+        start = datetime.datetime.utcnow()
+        end = start + datetime.timedelta(0,60)
+        frame = Frame.create(start=start, end=end)
+        return frame
+    else:
+        return frame
+
+def getFrame():
+    frame = Frame.select().order_by(Frame.end.desc()).first()
+    return frame
+
+
+count = 0
 
 
 class StreamListener(tweepy.StreamListener):
@@ -31,18 +55,16 @@ class StreamListener(tweepy.StreamListener):
             if ("coordinates" in data and data["coordinates"] != None) or ("place" in data and data["place"] != None):
                 if "hiring" not in data["text"].lower() and "weather" not in data["text"].lower():
 
-                    global frame
-                    global frameTime
                     global count
 
-
-                    if(datetime.datetime.utcnow() > frameTime):
+                    frame = getFrame()
+                    if(datetime.datetime.utcnow() > frame.end):
                         global q
-                        q.put_nowait(frame)
+                        q.put_nowait(frame.id)
 
-                        print "Time Frame: " + str(frame) + " Total Tweets: " + str(count)
-                        frame += 1
-                        frameTime = datetime.datetime.utcnow() + datetime.timedelta(minutes=1)
+                        print "Time Frame: " + str(frame.id) + " Total Tweets: " + str(count)
+                        frame = checkFrame(frame)
+
 
                     count += 1
 
@@ -156,10 +178,11 @@ if __name__ == '__main__':
     #set up exit handler
     signal.signal(signal.SIGINT, GracefulExit)
 
-    #spawn db cleaner
-    q = Queue()
-    p = Process(target=CleanDb, args=(q,))
-    p.start()
+    if config["cleaner"]:
+        #spawn db cleaner
+        q = Queue()
+        p = Process(target=CleanDb, args=(q,))
+        p.start()
 
     frameTime = datetime.datetime.utcnow() + datetime.timedelta(minutes=1)
 
@@ -173,7 +196,7 @@ if __name__ == '__main__':
     print "Starting Stream..."
     while(True):
         try:
-            stream.filter(locations=(-137.8,21.4,-66.5,51.6), async=False)
+            stream.filter(locations=location, async=False)
             #stream.sample()
         except Exception, e:
             print str(e)

@@ -1,0 +1,21 @@
+
+# toggles tweet clean up on/off
+cleaner: True
+
+# configures twitter api credentials
+twitter:
+    access_token: "3949049892-7lerWrlf8LBfkTxUy9gmPFFKvFUwmWGbZsKHz3d"
+    access_token_secret: "Jm2iAbHsyitvqENt8U9RjQlRN6y5YzOdy9PxoakIYCCU5"
+    consumer_key: "fItUDcblEvetpvU2eXqnIAMr9"
+    consumer_secret: "mxiehpqbIveC8einQZImJZzAQHFHhW4y6G1a3bLZNNEk6rXjKg"
+
+# location bounding box
+location:
+    lon1: -137.8
+    lat1: 21.4
+    
+    lon2: -66.5
+    lat2: 51.6
+
+
+
