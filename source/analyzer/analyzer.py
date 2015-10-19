@@ -27,7 +27,14 @@ train_labels = []
 test_data = []
 test_labels = []
 classifier_liblinear = svm.LinearSVC()
+datestamp = datetime.datetime.utcnow() + datetime.timedelta(0, 60)
 
+
+def printUpdate(counter):
+    global datestamp
+    if(datestamp < datetime.datetime.utcnow()):
+        print "Tweets Processed: " + str(counter)
+        datestamp = datetime.datetime.utcnow() + datetime.timedelta(0, 60)
 
 def checkFrame(frame):
     if(frame.end < datetime.datetime.utcnow()):
@@ -131,6 +138,7 @@ if __name__ == '__main__':
 
                 with db.atomic():
                     trow.delete_instance()
+                printUpdate(counter)
         time.sleep(1)
-
+        printUpdate(counter)
 
