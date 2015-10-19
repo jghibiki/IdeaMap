@@ -34,7 +34,9 @@ def GetTweets(page):
                 "original": tweet.original,
                 "rating": tweet.rating,
                 "classification": tweet.classification,
-                "frame": tweet.frame
+                "frame": tweet.frame.id,
+                "frame_start": str(tweet.frame.start),
+                "frame_end": str(tweet.frame.end)
         }
         tweets.append(data)
 
