@@ -15,12 +15,14 @@ app.wsgi_app = ProxyFix(app.wsgi_app)
 CORS(app, headers=['Content-Type'])
 
 
+
+
 @app.route("/tweets/<int:page>", methods=["GET"])
 @nocache
 def GetTweets(page):
+    frame = getFrame()
     tweets = []
-    maxFrame = ProcessedTweet.select().aggregate(fn.Max(ProcessedTweet.frame)) - 1
-    for tweet in ProcessedTweet.select().where(ProcessedTweet.frame == maxFrame):
+    for tweet in ProcessedTweet.select().where(ProcessedTweet.frame == frame):
         data = {
                 "id": tweet.id,
                 "entities": json.loads(tweet.entities),
@@ -61,5 +63,11 @@ def send_index():
         return response
 
 
+def getFrame():
+    frame = Frame.select().order_by(Frame.end.desc()).first()
+    return frame
+
 if __name__ == "__main__":
     app.run(host='0.0.0.0', debug=True)
+
+
