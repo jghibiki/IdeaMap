@@ -28,7 +28,24 @@ test_data = []
 test_labels = []
 classifier_liblinear = svm.LinearSVC()
 datestamp = datetime.datetime.utcnow() + datetime.timedelta(0, 60)
+currentFrame = None
+previousFrame = None
 
+def prune_old_tweets(newFrame):
+    global currentFrame
+    global previousFrame
+    if(currentFrame == None):
+        currentFrame = getFrame()
+    if(previousFrame == None):
+        previousFrame = getFrameToPrune()
+
+    if(newFrame != currentFrame):
+        if previousFrame is not None:
+            print "Pruning Frame: " + str(previousFrame.id)
+            with db.atomic():
+                ProcessedTweet.delete().where(ProcessedTweet.frame == previousFrame).execute()
+        previousFrame = currentFrame
+        currentFrame = newFrame
 
 def printUpdate(counter):
     global datestamp
@@ -36,18 +53,17 @@ def printUpdate(counter):
         print "Tweets Processed: " + str(counter)
         datestamp = datetime.datetime.utcnow() + datetime.timedelta(0, 60)
 
-def checkFrame(frame):
-    if(frame.end < datetime.datetime.utcnow()):
-        start = datetime.datetime.utcnow()
-        end = start + datetime.timedelta(0,60)
-        frame = Frame.create(start=start, end=end)
-        return frame
-    else:
-        return frame
-
 def getFrame():
     frame = Frame.select().order_by(Frame.end.desc()).first()
     return frame
+
+def getFrameToPrune():
+    count = Frame.select().order_by(-Frame.end).limit(3).count()
+    if count >= 3:
+        frame = Frame.select().order_by(Frame.end.desc()).limit(3)[2]
+        return frame
+    return None
+
 
 def classify(data):
     try:
@@ -64,12 +80,15 @@ def usage():
     print("Usage:")
     print("python %s <data_dir>" % sys.argv[0])
 
-
+def GracefulExit(_signal, frame):
+    if _signal is signal.SIGINT:
+        print "\nShutting down..."
+        sys.exit(0)
 
 
 
 if __name__ == '__main__':
-
+    signal.signal(signal.SIGINT, GracefulExit)
     classes = ['pos', 'neg']
 
     vectorizer = None
@@ -117,6 +136,7 @@ if __name__ == '__main__':
     print "starting db loop..."
     counter = 0
     while True:
+        frame = None
         if Tweet.select().count()>0:
             for trow in Tweet.select().order_by(Tweet.created_at.desc()):
                 counter += 1
@@ -139,6 +159,8 @@ if __name__ == '__main__':
                 with db.atomic():
                     trow.delete_instance()
                 printUpdate(counter)
+                prune_old_tweets(frame)
         time.sleep(1)
         printUpdate(counter)
+        prune_old_tweets(frame)
 
