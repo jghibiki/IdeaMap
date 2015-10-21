@@ -66,7 +66,7 @@ def send_index():
 
 
 def getFrame():
-    frame = Frame.select().order_by(Frame.end.desc()).first()
+    frame = Frame.select().order_by(Frame.end.desc()).limit(2)[1]
     return frame
 
 if __name__ == "__main__":
