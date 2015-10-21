@@ -17,10 +17,16 @@ twitter:
     #consumer_secret: "mxiehpqbIveC8einQZImJZzAQHFHhW4y6G1a3bLZNNEk6rXjKg"
     
     #jghibiki
-    access_token: "43207500-vVaHcVk1OhdGrmp4bYnnlpGqY04gJ1l3VHKiAVxfC"
-    access_token_secret: "4HCkIZa7rZDSbU7BOZS75JAdXe0kaS3VK8lv9rfF81pY2"
-    consumer_key: "9YB1LjysXrJUXhfPfdnfyB1lP"
-    consumer_secret: "xEWYrXMcyQFrKndrl10s8193HjjuBtvGE9yybrk5TQjvrYnsQy"
+    #access_token: "43207500-vVaHcVk1OhdGrmp4bYnnlpGqY04gJ1l3VHKiAVxfC"
+    #access_token_secret: "4HCkIZa7rZDSbU7BOZS75JAdXe0kaS3VK8lv9rfF81pY2"
+    #consumer_key: "9YB1LjysXrJUXhfPfdnfyB1lP"
+    #consumer_secret: "xEWYrXMcyQFrKndrl10s8193HjjuBtvGE9yybrk5TQjvrYnsQy"
+
+    #KyleRyan11235
+    access_token: "4010739394-F156dCIH53L1pfstMxF7PlqkmfDJEZJScb0qGAv"
+    access_token_secret: "7ZynMAw4hsnmyFfifGl9z8omFKqBRDbCcbhO1rgiqQW51"
+    consumer_key: "NhwzdxzKaBRemgIpnnuZFmyNd"
+    consumer_secret: "EB6OJaK5IGbfXPjMKsk1nRY9GxdgHuEsGZDAKVh0VJubp9iSFO"
 
 # location bounding box
 location:
@@ -73,7 +79,39 @@ location:
     
 
     # east 
-    lon1: -90.27
+    #lon1: -90.27
+    #lat1: 21.4
+
+    #lon2: -66.5
+    #lat2: 51.6
+    
+    #####################
+    # 1/4 US
+    #####################
+
+    # pacific
+    #lon1: -137.8
+    #lat1: 21.4
+
+    #lon2: -119.9
+    #lat2: 51.6
+
+    ## mountain
+    #lon1: -120
+    #lat1: 21.4
+
+    #lon2: -102.2
+    #lat2: 51.6
+
+    ## centeral
+    #lon1: -102.3
+    #lat1: 21.4
+
+    #lon2: -84.3
+    #lat2: 51.6
+
+    # atlantic
+    lon1: -84.4
     lat1: 21.4
 
     lon2: -66.5
