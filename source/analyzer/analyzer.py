@@ -32,6 +32,7 @@ currentFrame = None
 previousFrame = None
 
 def prune_old_tweets(newFrame):
+    return
     global currentFrame
     global previousFrame
     if(currentFrame == None):
@@ -58,8 +59,8 @@ def getFrame():
     return frame
 
 def getFrameToPrune():
-    count = Frame.select().order_by(-Frame.end).limit(3).count()
-    if count >= 3:
+    count = Frame.select().order_by(-Frame.end).count()
+    if count > 3:
         frame = Frame.select().order_by(Frame.end.desc()).limit(3)[2]
         return frame
     return None

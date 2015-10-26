@@ -18,6 +18,7 @@ with open("config.yml", "rb") as f:
 
 count = 0
 datestamp = datetime.datetime.utcnow() + datetime.timedelta(0, 60)
+regex = re.compile("(T|t)rump|((H|h)ilary )*(C|c)linton|(B|b)iden|((B|b)erny )*(S|s)anders|(d|D)emocrat|(R|r)epublican|(E|e)lection")
 
 #Variables that contains the user credentials to access Twitter API
 access_token = config["twitter"]["access_token"]
@@ -34,7 +35,7 @@ location = (
 def checkFrame(frame):
     if(frame.end < datetime.datetime.utcnow()):
         start = datetime.datetime.utcnow()
-        end = start + datetime.timedelta(0,60)
+        end = start + datetime.timedelta(days=1)
         frame = Frame.create(start=start, end=end)
         return frame
     else:
@@ -54,70 +55,73 @@ class StreamListener(tweepy.StreamListener):
         data = json.loads(_data)
         if not "delete" in data:
             if ("coordinates" in data and data["coordinates"] != None) or ("place" in data and data["place"] != None):
-                if "hiring" not in data["text"].lower() and "weather" not in data["text"].lower():
+                if regex.search(data["text"]):
+                    print(data["text"])
+                    if "hiring" not in data["text"].lower() and "weather" not in data["text"].lower():
 
-                    frame = getFrame()
-                    if(datetime.datetime.utcnow() > frame.end):
-                        if config["cleaner"]:
-                            global q
-                            q.put_nowait(frame.id)
+                        frame = getFrame()
+                        if(datetime.datetime.utcnow() > frame.end):
+                            if config["cleaner"]:
+                                global q
+                                q.put_nowait(frame.id)
 
-                        frame = checkFrame(frame)
+                            frame = checkFrame(frame)
 
-                    global datestamp
-                    if(datestamp < datetime.datetime.utcnow()):
-                        datestamp = datetime.datetime.utcnow() + datetime.timedelta(0,60)
+                        global datestamp
+                        if(datestamp < datetime.datetime.utcnow()):
+                            datestamp = datetime.datetime.utcnow() + datetime.timedelta(days=1)
 
-                        global count
-                        print "Time Frame: " + str(frame.id) + " Total Tweets: " + str(count)
+                            global count
+                            print "Time Frame: " + str(frame.id) + " Total Tweets: " + str(count)
 
-                    count += 1
+                        count += 1
 
-                    data = preprocess(data)
+                        data = preprocess(data)
 
-                    coord = None
-                    place = None
+                        coord = None
+                        place = None
 
 
-                    if data["coordinates"] != None:
-                        coord = data["coordinates"]
+                        if data["coordinates"] != None:
+                            coord = data["coordinates"]
 
-                    if data["place"] != None:
-                        place = [
-                            [
-                                data["place"]["bounding_box"]["coordinates"][0][0][0],
-                                data["place"]["bounding_box"]["coordinates"][0][0][1]
-                            ],
-                            [
-                                data["place"]["bounding_box"]["coordinates"][0][1][0],
-                                data["place"]["bounding_box"]["coordinates"][0][1][1]
-                            ],
-                            [
-                                data["place"]["bounding_box"]["coordinates"][0][2][0],
-                                data["place"]["bounding_box"]["coordinates"][0][2][1]
-                            ],
-                            [
-                                data["place"]["bounding_box"]["coordinates"][0][3][0],
-                                data["place"]["bounding_box"]["coordinates"][0][3][1]
+                        if data["place"] != None:
+                            place = [
+                                [
+                                    data["place"]["bounding_box"]["coordinates"][0][0][0],
+                                    data["place"]["bounding_box"]["coordinates"][0][0][1]
+                                ],
+                                [
+                                    data["place"]["bounding_box"]["coordinates"][0][1][0],
+                                    data["place"]["bounding_box"]["coordinates"][0][1][1]
+                                ],
+                                [
+                                    data["place"]["bounding_box"]["coordinates"][0][2][0],
+                                    data["place"]["bounding_box"]["coordinates"][0][2][1]
+                                ],
+                                [
+                                    data["place"]["bounding_box"]["coordinates"][0][3][0],
+                                    data["place"]["bounding_box"]["coordinates"][0][3][1]
+                                ]
                             ]
-                        ]
 
 
-                    with db.atomic():
-                        row = Tweet.create(
-                            entities = json.dumps(data["entities"]),
-                            created_at = datetime.datetime.strptime(data["created_at"], '%a %b %d %H:%M:%S +0000 %Y').replace(tzinfo=pytz.UTC),
-                            coordinates = json.dumps(coord),
-                            place = json.dumps(place),
-                            text = data["text"],
-                            original = data["original"],
-                            frame = frame
-                        )
+                        with db.atomic():
+                            row = Tweet.create(
+                                entities = json.dumps(data["entities"]),
+                                created_at = datetime.datetime.strptime(data["created_at"], '%a %b %d %H:%M:%S +0000 %Y').replace(tzinfo=pytz.UTC),
+                                coordinates = json.dumps(coord),
+                                place = json.dumps(place),
+                                text = data["text"],
+                                original = data["original"],
+                                frame = frame
+                            )
 
-        return True
+            return True
 
-    def on_error(self, status):
-        print status
+def on_error(self, status):
+    print "error"
+    print status
 
 
 
@@ -190,7 +194,6 @@ if __name__ == '__main__':
         p = Process(target=CleanDb, args=(q,))
         p.start()
 
-    frameTime = datetime.datetime.utcnow() + datetime.timedelta(minutes=1)
 
     #This handles Twitter authetification and the connection to Twitter Streaming API
     listener = StreamListener()
@@ -205,4 +208,5 @@ if __name__ == '__main__':
             stream.filter(locations=location, async=False)
             #stream.sample()
         except Exception, e:
+            print("error")
             print str(e)

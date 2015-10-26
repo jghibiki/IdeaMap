@@ -22,21 +22,21 @@ CORS(app, headers=['Content-Type'])
 def GetTweets(page):
     frame = getFrame()
     tweets = []
-    for tweet in ProcessedTweet.select().where(ProcessedTweet.frame == frame):
+    for tweet in ProcessedTweet.select().where(ProcessedTweet.frame == frame ).dicts().iterator():
         data = {
-                "id": tweet.id,
-                "entities": json.loads(tweet.entities),
-                "created_at": tweet.created_at,
-                "process_date": tweet.process_date,
-                "coordinates": json.loads(tweet.coordinates),
-				"place": json.loads(tweet.place),
-                "text": tweet.text,
-                "original": tweet.original,
-                "rating": tweet.rating,
-                "classification": tweet.classification,
-                "frame": tweet.frame.id,
-                "frame_start": str(tweet.frame.start),
-                "frame_end": str(tweet.frame.end)
+                "id": tweet["id"],
+                "entities": json.loads(tweet["entities"]),
+                "created_at": tweet["created_at"],
+                "process_date": tweet["process_date"],
+                "coordinates": json.loads(tweet["coordinates"]),
+				"place": json.loads(tweet["place"]),
+                "text": tweet["text"],
+                "original": tweet["original"],
+                "rating": tweet["rating"],
+                "classification": tweet["classification"],
+                "frame": tweet["frame"],
+                #"frame_start": str(tweet["frame"]["start"]),
+                #"frame_end": str(tweet["frame"]["end"])
         }
         tweets.append(data)
 
@@ -66,7 +66,7 @@ def send_index():
 
 
 def getFrame():
-    frame = Frame.select().order_by(Frame.end.desc()).first()
+    frame = Frame.select().order_by(Frame.end.desc()).limit(2)[1]
     return frame
 
 if __name__ == "__main__":
