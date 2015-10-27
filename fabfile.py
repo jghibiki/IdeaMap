@@ -34,6 +34,8 @@ def query(query=None):
     if query is None:
         print("Must specify a query.")
 
+    shutil.copyfile("config/models.config.yml", "source/models/config.yml")
+
     from os import path
     from peewee import PostgresqlDatabase
     from yaml import load
