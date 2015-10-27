@@ -22,6 +22,8 @@ def start_test(app="all"):
             print("Starting Web App")
             local("python2 start.py > ../../app.log 2>&1 &")
 
+def monitor_test():
+    local("tail -f analyzer.log -f streamer.log -f app.log")
 
 
 def stop_test():
