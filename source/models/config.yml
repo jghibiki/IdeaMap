@@ -1,6 +1,0 @@
-
-database:
-    db: "leet_tweets"
-    url: "melt.ndacm.org"
-    username: "tweet_is_leet"
-    password: "leet_is_tweet"
