@@ -68,3 +68,5 @@ tweetraining.csv
 *.pkl
 *.npy
 *.swp
+
+source/**/*.yml
