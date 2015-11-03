@@ -26,3 +26,10 @@ class TweetDetailView(generic.DetailView):
     model = ProcessedTweet
     template_name = "DataViewer/detail.html"
     context_object_name = "tweet"
+
+def map(request):
+    return render(
+        request,
+        "DataViewer/map.html",
+        {}
+    )

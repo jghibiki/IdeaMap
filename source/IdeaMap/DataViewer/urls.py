@@ -9,6 +9,9 @@ urlpatterns = [
     #ex: /viewer/tweets/
     url(r'^tweet?s/$', views.TweetView.as_view(), name='tweets'),
 
-    #ex: /viwer/<tweet id>
+    #ex: /viewer/<tweet id>
     url(r'^tweet?s/(?P<pk>[0-9]+)/$', views.TweetDetailView.as_view(), name='tweetDetail'),
+
+    #ex: /viewer/map/
+    url(r'^map/$', views.map, name="map"),
 ]
