@@ -1,0 +1,12 @@
+{% if latest_tweets_list %}
+    <ul>
+        {% for tweet in latest_tweets_list %}
+            <li>
+                <a href="{% url 'viewer:tweetDetail' tweet.id %}">{{tweet.id}}</a>
+                <p>{{tweet.text}}</p>
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No tweets are available.</p>
+{% endif %}

@@ -1,0 +1,31 @@
+{% if tweet %}
+    <h1>Processed Tweet</h1>
+
+
+    <h3>Basic Info</h3>
+    <div>ID: {{tweet.id}}</div>
+    <div>Frame: {{tweet.frame}}</div>
+    <div>Created Date: {{tweet.created_date}}</div>
+    <div>Processed Date: {{tweet.processed_date}}</div>
+
+    <h3>Tweet Text</h3>
+    <div>{{tweet.original}}</div>
+
+    <h3>Pre-Processed Tweet Text</h3>
+    <div>{{tweet.text}}</div>
+
+    <h3>Analytics</h3>
+    <div>Rating: {{tweet.rating}}</div>
+    <div>Classification: {{tweet.classification}}</div>
+
+    <h3>Location</h3>
+    <div>Coordinates: {{tweet.coordinates}}</div>
+    <div>Place: {{tweet.place}}</div>
+
+    <h3>Tweet Entities</h3>
+    <div>{{tweet.entities}}</div>
+
+    <h3>Raw Json</h3>
+    <div>{{tweet.getJson}}</div>
+
+{% endif %}
