@@ -1,4 +1,5 @@
-from django.db import models
+#from django.db import models
+from django.contrib.gis.db import models
 
 import json
 
@@ -30,13 +31,14 @@ class ProcessedTweet(models.Model):
     entities = models.TextField()
     processed_date = models.DateTimeField()
     created_date = models.DateTimeField()
-    coordinates = models.TextField()
-    place = models.TextField()
     text = models.TextField()
     original = models.TextField()
     rating = models.FloatField()
     classification = models.TextField()
     frame = models.ForeignKey(Frame)
+
+    objects = models.GeoManager()
+    point = models.PointField(default=[0,0])
 
     def __str__(self):
         return str(self.id)

@@ -37,6 +37,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.gis',
     'DataViewer'
 )
 
@@ -77,7 +78,8 @@ WSGI_APPLICATION = 'IdeaMap.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        #'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',
         'NAME': 'leet_tweets',
         'USER': 'tweet_is_leet',
         'PASSWORD': 'leet_is_tweet',
