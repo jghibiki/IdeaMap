@@ -1,5 +1,8 @@
 from django.shortcuts import render, get_object_or_404, get_list_or_404
+from django.contrib.auth.models import User, Group
 from django.views import generic
+from rest_framework import viewsets
+from .serializers import UserSerializer, GroupSerializer
 from .models import ProcessedTweet
 
 # Create your views here.
@@ -33,3 +36,19 @@ def map(request):
         "DataViewer/map.html",
         {}
     )
+
+
+# REST API Views
+class UserViewSet(viewsets.ModelViewSet):
+    """
+    API Endpoint that allows users to be viewed or edited.
+    """
+    queryset = User.objects.all().order_by('-date_joined')
+    serializer_class = UserSerializer
+
+class GroupViewSet(viewsets.ModelViewSet):
+    """
+    API Endpoint that allows groups to be viewed or edited.
+    """
+    queryset = Group.objects.all()
+    serializer_class = GroupSerializer

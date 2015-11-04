@@ -24,3 +24,7 @@ tweetpy==0.1
 wheel==0.24.0
 wsgiref==0.1.2
 pyyaml
+django
+djangorestframework
+markdown
+django-filter
