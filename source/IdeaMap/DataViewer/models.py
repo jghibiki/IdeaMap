@@ -1,5 +1,6 @@
 #from django.db import models
 from django.contrib.gis.db import models
+from django.conf import settings
 
 import json
 
@@ -63,6 +64,15 @@ class ProcessedTweet(models.Model):
         })
 
 
+class Filter(models.Model):
+    name = models.TextField()
+    pattern = models.TextField()
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL)
+
+    def __str__(self):
+        return str(self.id)
+
+        
 class County(models.Model):
     statefp = models.CharField(max_length=2)
     countyfp = models.CharField(max_length=3)

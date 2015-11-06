@@ -1,12 +1,42 @@
 from django.contrib.auth.models import User, Group
-from rest_framework import serializers
+from rest_framework import serializers, models
+from .models import Tweet, ProcessedTweet, County, Filter
 
-class UserSerializer(serializers.HyperlinkedModelSerializer):
+class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('url', 'username', 'email', 'groups')
+        fields = ('id', 'username', 'email', 'groups')
 
-class GroupSerializer(serializers.HyperlinkedModelSerializer):
+class GroupSerializer(serializers.ModelSerializer):
     class Meta:
         model = Group
-        fields = ('url', 'name')
+        fields = ('id', 'name')
+
+class FilterSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Filter
+        fields = ('id', 'name', 'pattern', 'owner')
+
+class CountySerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = County
+        fields = (
+            'statefp',
+            'countyfp',
+            'countyns',
+            'geoid',
+            'name',
+            'namelsad',
+            'lsad',
+            'classfp',
+            'mtfcc',
+            'csafp',
+            'cbsafp',
+            'metdivfp',
+            'funcstat',
+            'aland',
+            'awater',
+            'intptlat',
+            'intptlon',
+            'geom'
+        )
