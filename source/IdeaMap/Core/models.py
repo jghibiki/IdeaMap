@@ -7,12 +7,6 @@ import json
 # Create your models here.
 
 
-class Frame(models.Model):
-    start_date = models.DateTimeField()
-    end_date = models.DateTimeField()
-
-    def __str__(self):
-        return str(self.id)
 
 
 class Tweet(models.Model):
@@ -22,7 +16,6 @@ class Tweet(models.Model):
     place = models.TextField()
     text = models.TextField()
     original = models.TextField()
-    frame = models.ForeignKey(Frame)
 
     def __str__(self):
         return str(self.id)
@@ -36,7 +29,6 @@ class ProcessedTweet(models.Model):
     original = models.TextField()
     rating = models.FloatField()
     classification = models.TextField()
-    frame = models.ForeignKey(Frame)
 
     objects = models.GeoManager()
     point = models.PointField(default=[0,0])
@@ -56,11 +48,6 @@ class ProcessedTweet(models.Model):
             "original": self.original,
             "rating": self.rating,
             "classification": self.classification,
-            "frame": {
-                "id": self.frame.id,
-                "start_date": self.frame.start_date.isoformat(),
-                "end_date": self.frame.end_date.isoformat()
-            }
         })
 
 

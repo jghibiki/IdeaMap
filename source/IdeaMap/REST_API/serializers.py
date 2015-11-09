@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User, Group
 from rest_framework import serializers, models
-from .models import Tweet, ProcessedTweet, County, Filter
+from Core.models import Tweet, ProcessedTweet, County, Filter
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:

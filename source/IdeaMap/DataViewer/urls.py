@@ -11,13 +11,4 @@ urlpatterns = [
     url(r'^map/$',
         views.map,
         name="map"),
-
-    # ex: /viewer/api/auth
-    url(r'^api/auth/',
-        include(
-            'rest_framework.urls',
-            namespace='rest_framework')),
-
-    url(r'^api/filters/$', 
-        views.Filter_List.as_view())
 ]

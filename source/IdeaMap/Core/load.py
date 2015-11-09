@@ -1,6 +1,6 @@
 import os
 from django.contrib.gis.utils import LayerMapping
-from models import County
+from .models import County
 
 # Auto-generated `LayerMapping` dictionary for County model
 county_mapping = {

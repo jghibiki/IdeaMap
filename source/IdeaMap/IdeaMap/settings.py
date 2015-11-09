@@ -41,7 +41,11 @@ INSTALLED_APPS = (
     'rest_framework',
     'rest_framework_gis',
     'require',
-    'DataViewer'
+    'djcelery',
+    'DataViewer',
+    'Core',
+    'REST_API',
+    'Analyzer'
 )
 
 MIDDLEWARE_CLASSES = (
@@ -104,6 +108,9 @@ USE_L10N = True
 
 USE_TZ = True
 
+# Sets the default login redirect url
+LOGIN_REDIRECT_URL='/'
+
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
@@ -151,3 +158,15 @@ REQUIRE_EXCLUDE = ("build.txt",)
 # auto will autodetect the environment and make use of node if available and rhino if not.
 # It can also be a path to a custom class that subclasses require.environments.Environment and defines some "args" function that returns a list with the command arguments to execute.
 REQUIRE_ENVIRONMENT = "auto"
+
+# Celery Configuration
+BROKER_URL = "amqp://tweet_is_leet:leet_is_tweet@localhost//"
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER='json'
+CELERY_RESULT_BACKEND='djcelery.backends.database:DatabaseBackend'
+
+# Analyzer Config
+ANALYZER_CACHE_DIR = "/tmp/IdeaMap"
+ANALYZER_DATA_DIR = "Analyzer/data"
+
