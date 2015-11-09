@@ -1,0 +1,24 @@
+[Unit]
+Description=Celery workers
+After=network.target
+
+[Service]
+Type=forking
+User=root
+Group=root
+WorkingDirectory=/IdeaMap/source/IdeaMap
+ExecStart=/IdeaMap/source/IdeaMap/manage.py celeryd_multi start "w1" \
+    --pidfile="/var/run/celery/%N.pid" \
+    --logfile="/var/log/celery/%N.log" \
+    --time-limit=300\
+    --concurrency=8
+ExecStop=/IdeaMap/source/IdeaMap/manage.py celeryd_multi stop "w1"\
+    --pidfile="/var/run/celery/%N.pid"
+ExecReload==/IdeaMap/source/IdeaMap/manage.py celeryd_multi restart "w1" \
+    --pidfile="/var/run/celery/%N.pid" \
+    --logfile="/var/log/celery/%N.log" \
+    --time-limit=300\
+    --concurrency=8
+
+[Install]
+WantedBy=multi-user.target

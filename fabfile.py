@@ -28,6 +28,14 @@ def deploy_remote():
         with cd(django_dir):
             run("python manage.py collectstatic --noinput")
 
+    if confirm("Generate Analyzer ML cache?"):
+        with cd(django_dir):
+            run("python Analyzer/train.py")
+
+    if confirm("Restart Celery Workers"):
+        with cd(django_dir):
+            run("sudo systemctl restart celery")
+
     if confirm("Reload Apache?"):
         run("sudo systemctl reload apache2")
 

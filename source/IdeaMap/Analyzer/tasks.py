@@ -11,20 +11,21 @@ from django.conf import settings
 from django.contrib.gis.geos import Point
 from Core.models import ProcessedTweet
 
+if __name__ != "__main__":
 
-cache_dir = settings.ANALYZER_CACHE_DIR
+    cache_dir = settings.ANALYZER_CACHE_DIR
+    
+    vectorizer_cache = "vectorizer.pickle"
+    vectorizer_cache = os.path.join(cache_dir, vectorizer_cache)
+    
+    classifier_cache = "classifier.pickle"
+    classifier_cache = os.path.join(cache_dir, classifier_cache)
 
-vectorizer_cache = "vectorizer.pickle"
-vectorizer_cache = os.path.join(cache_dir, vectorizer_cache)
-
-classifier_cache = "classifier.pickle"
-classifier_cache = os.path.join(cache_dir, classifier_cache)
-
+    vectorizer = joblib.load(vectorizer_cache)
+    classifier_liblinear = joblib.load(classifier_cache)
 
 @shared_task
 def classify(tweet):
-    vectorizer = joblib.load(vectorizer_cache)
-    classifier_liblinear = joblib.load(classifier_cache)
 
     test_vectors = vectorizer.transform([tweet["text"]])
     prediction_liblinear = classifier_liblinear.predict(test_vectors)
