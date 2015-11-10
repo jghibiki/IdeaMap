@@ -61,14 +61,14 @@ define(["ko", "chain", "moduleManager", "module", "filterWorkflowManager"], func
 						});
 					})
 					.cc(function(context, error, next){
-						var json = context.response
 						var features = []
 						var tweets = [];
-						for(var x=0; x< json["result"].length; x++){
-							var tweet = json["result"][x];
+						for(var x=0; x< context.response.length; x++){
+							var tweet = context.response[x];
 							tweet.process_date = new Date(Date(tweet.process_date));
 
 							/* fix coordinates */
+							/*
 							var coords = null;
 							if(tweet.coordinates !== null){
 								coords = ol.proj.fromLonLat(tweet.coordinates.coordinates);
@@ -87,8 +87,9 @@ define(["ko", "chain", "moduleManager", "module", "filterWorkflowManager"], func
 
 								coords = [avgLon, avgLat];
 							}
-							
 							tweet.coordinates = coords;
+							*/
+							
 							tweets.push(tweet);
 						}
 						self.tweets(tweets);

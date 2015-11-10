@@ -17,6 +17,20 @@ class FilterSerializer(serializers.ModelSerializer):
         model = Filter
         fields = ('id', 'name', 'pattern', 'owner')
 
+class ProcessedTweetSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProcessedTweet
+        fields = (
+            'id',
+            'text',
+            'processed_date',
+            'created_date',
+            'entities',
+            'original', 
+            'rating',
+            'classification',
+            'point')
+
 class CountySerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = County

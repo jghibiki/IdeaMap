@@ -132,7 +132,7 @@ define(["ko", "ol", "pipelineManager", "mapManager"], function(ko, ol, PipelineM
 				self._.overlay.setPosition(undefined);
 				self.selectedTweet(undefined);
 				self.selectedTweet(tweet);
-				self._.overlay.setPosition(tweet.coordinates);
+				self._.overlay.setPosition(tweet.point.coordinates);
 			}
 		}
 

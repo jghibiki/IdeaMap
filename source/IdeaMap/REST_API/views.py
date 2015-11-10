@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.contrib.auth.models import User, Group
 from .serializers import *
-from Core.models import ProcessedTweet
+from Core.models import ProcessedTweet, Filter
 
 class Filter_List(APIView):
     """
@@ -92,3 +92,23 @@ class Filter_Detail(APIView):
         filter.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+class Tweet_List(APIView):
+    """
+    List tweets
+
+    GET requests paginated with '?page=<page>'
+    """
+    def get(self, request):
+        tweets = ProcessedTweet.objects.all()
+        paginator = Paginator(tweets, 10)
+        page = request.GET.get('page')
+
+        try:
+            paginated_tweets = paginator.page(page)
+        except PageNotAnInteger:
+            paginated_tweets = paginator.page(1)
+        except EmptyPage:
+            paginated_tweets = paginator.page(paginator.num_pages)
+
+        serializer = ProcessedTweetSerializer(paginated_tweets, many=True)
+        return Response(serializer.data)

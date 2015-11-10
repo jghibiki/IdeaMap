@@ -113,7 +113,7 @@ define(["mapManager", "ol"], function(mapManagerModule, ol){
 				for(var x=0; x<tweets.length; x++){
 					var tweet = tweets[x];	
 
-					var geom = new ol.geom.Point(tweet.coordinates)
+					var geom = new ol.geom.Point(tweet.point.coordinates)
 					var feature = new ol.Feature({
 						geometry: geom,
 					    	tweet: tweet

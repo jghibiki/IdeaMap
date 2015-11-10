@@ -28,15 +28,15 @@ def deploy_remote():
         with cd(django_dir):
             run("python manage.py collectstatic --noinput")
 
-    if confirm("Generate Analyzer ML cache?"):
+    if confirm("Generate Analyzer ML cache?", default=False):
         with cd(django_dir):
-            run("python Analyzer/train.py")
+            run("python Analyzer/train.py", default=False)
 
-    if confirm("Restart Celery Workers"):
+    if confirm("Restart Celery Workers", default= False):
         with cd(django_dir):
             run("sudo systemctl restart celery")
 
-    if confirm("Reload Gunicorn?"):
+    if confirm("Reload Gunicorn?", default=False):
         run("sudo systemctl reload ideamap")
 
     print("Finished Deploying!")
