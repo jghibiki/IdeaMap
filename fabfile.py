@@ -36,8 +36,8 @@ def deploy_remote():
         with cd(django_dir):
             run("sudo systemctl restart celery")
 
-    if confirm("Reload Apache?"):
-        run("sudo systemctl reload apache2")
+    if confirm("Reload Gunicorn?"):
+        run("sudo systemctl reload ideamap")
 
     print("Finished Deploying!")
 

@@ -1,0 +1,13 @@
+[Unit]
+Description=IdeaMap Gunicorn Daemon
+After=network.target
+
+[Service]
+User=gunicorn
+Group=nginx
+WorkingDirectory=/IdeaMap/source/IdeaMap
+ExecStart=/usr/local/bin/gunicorn --workers 8 --bind unix:/tmp/ideamap.sock IdeaMap.wsgi:application 
+ExecReload=/usr/local/bin/gunicorn --workers 8 --bind unix:/tmp/ideamap.sock IdeaMap.wsgi:application
+
+[Install]
+WantedBy=multi-user.target
