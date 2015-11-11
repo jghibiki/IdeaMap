@@ -9,7 +9,6 @@ from celery import shared_task
 from Core.models import Tweet, ProcessedTweet
 from django.conf import settings
 from django.contrib.gis.geos import Point
-from Core.models import ProcessedTweet
 
 if __name__ != "__main__":
 
@@ -35,7 +34,7 @@ def classify(tweet):
     newTweet = ProcessedTweet(
         entities=tweet["entities"],
         processed_date=datetime.datetime.utcnow(),
-        created_date= parser.parse(tweet["created_at"]),
+        created_date= parser.parse(tweet["created_date"]),
         text=tweet["text"],
         original=tweet["original"],
         rating=confidence,

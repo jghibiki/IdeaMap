@@ -46,3 +46,15 @@ tweepy == 3.4.0
 
 # fabfile.py: 2,3
 Fabric == 1.10.2
+
+# celery
+celery
+
+# Django require
+django-require
+
+# Django Rest Framework GIS
+djangorestframework-gis
+
+# django celery
+django-celery

@@ -47,14 +47,6 @@ class Migration(migrations.Migration):
             ],
         ),
         migrations.CreateModel(
-            name='Frame',
-            fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('start_date', models.DateTimeField()),
-                ('end_date', models.DateTimeField()),
-            ],
-        ),
-        migrations.CreateModel(
             name='ProcessedTweet',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
@@ -66,7 +58,6 @@ class Migration(migrations.Migration):
                 ('rating', models.FloatField()),
                 ('classification', models.TextField()),
                 ('point', django.contrib.gis.db.models.fields.PointField(default=[0, 0], srid=4326)),
-                ('frame', models.ForeignKey(to='Core.Frame')),
             ],
         ),
         migrations.CreateModel(
@@ -74,12 +65,12 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('entities', models.TextField()),
-                ('created_at', models.DateTimeField()),
+                ('created_date', models.DateTimeField()),
                 ('coordinates', models.TextField()),
                 ('place', models.TextField()),
                 ('text', models.TextField()),
                 ('original', models.TextField()),
-                ('frame', models.ForeignKey(to='Core.Frame')),
+                ('point', django.contrib.gis.db.models.fields.PointField(default=[0, 0], srid=4326)),
             ],
         ),
     ]

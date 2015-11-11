@@ -45,7 +45,8 @@ INSTALLED_APPS = (
     'DataViewer',
     'Core',
     'REST_API',
-    'Analyzer'
+    'Analyzer',
+    'Streamer',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -109,7 +110,7 @@ USE_L10N = True
 USE_TZ = True
 
 # Sets the default login redirect url
-LOGIN_REDIRECT_URL='/'
+LOGIN_REDIRECT_URL = '/'
 
 
 # Static files (CSS, JavaScript, Images)
@@ -163,10 +164,19 @@ REQUIRE_ENVIRONMENT = "auto"
 BROKER_URL = "amqp://tweet_is_leet:leet_is_tweet@localhost//"
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
-CELERY_RESULT_SERIALIZER='json'
-CELERY_RESULT_BACKEND='djcelery.backends.database:DatabaseBackend'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_RESULT_BACKEND = 'djcelery.backends.database:DatabaseBackend'
 
 # Analyzer Config
 ANALYZER_CACHE_DIR = "/tmp/IdeaMap"
 ANALYZER_DATA_DIR = "Analyzer/data"
 
+# Streamer Config
+STREAMER_ACCESS_TOKEN = "4010739394-F156dCIH53L1pfstMxF7PlqkmfDJEZJScb0qGAv"
+STREAMER_ACCESS_TOKEN_SECRET = "7ZynMAw4hsnmyFfifGl9z8omFKqBRDbCcbhO1rgiqQW51"
+STREAMER_CONSUMER_KEY = "NhwzdxzKaBRemgIpnnuZFmyNd"
+STREAMER_CONSUMER_SECRET = "EB6OJaK5IGbfXPjMKsk1nRY9GxdgHuEsGZDAKVh0VJubp9iSFO"
+STREAMER_LOCATION = [
+    -84.4, 21.4,
+    -66.5,51.6
+]

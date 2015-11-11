@@ -11,11 +11,13 @@ import json
 
 class Tweet(models.Model):
     entities = models.TextField()
-    created_at = models.DateTimeField()
+    created_date = models.DateTimeField()
     coordinates = models.TextField()
     place = models.TextField()
     text = models.TextField()
     original = models.TextField()
+    objects = models.GeoManager()
+    point = models.PointField(default=[0,0])
 
     def __str__(self):
         return str(self.id)
