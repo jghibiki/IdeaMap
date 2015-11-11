@@ -21,8 +21,7 @@ define(["ko", "mapManager", "popupViewModel"], function(ko, MapManagerModule, Po
             self._.checkIfDisposed();
             if(!self._.shown){
 
-                self._.mapManager.setMapTarget("map");
-		self.popupViewModel.shown();
+        		self.popupViewModel.shown();
 
                 self._.shown = true;
             }
@@ -33,7 +32,6 @@ define(["ko", "mapManager", "popupViewModel"], function(ko, MapManagerModule, Po
             if(self._.shown){
 
 		self.popupViewModel.hidden();
-                self._.mapManager.setMapTarget(null);
 
                 self._.shown = false;
             } 

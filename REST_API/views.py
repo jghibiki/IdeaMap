@@ -19,7 +19,7 @@ class Filter_List(APIView):
         if request.user.is_authenticated():
             filters = Filter.objects.filter(owner=request.user)
 
-            paginator = Paginator(filters, 10)
+            paginator = Paginator(filters, 100)
             page = request.GET.get('page')
 
             try:
@@ -100,7 +100,7 @@ class Tweet_List(APIView):
     """
     def get(self, request):
         tweets = ProcessedTweet.objects.all()
-        paginator = Paginator(tweets, 10)
+        paginator = Paginator(tweets, 2000)
         page = request.GET.get('page')
 
         try:

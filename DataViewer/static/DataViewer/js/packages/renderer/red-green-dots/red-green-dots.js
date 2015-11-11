@@ -1,4 +1,4 @@
-define(["mapManager", "ol"], function(mapManagerModule, ol){
+define(["mapManager", "leaflet"], function(mapManagerModule, L){
 
 	function SimpleDotsRenderer(){
 		var self = this;
@@ -9,8 +9,6 @@ define(["mapManager", "ol"], function(mapManagerModule, ol){
 			disposed: false,
 			mapManager: mapManagerModule.get(),
 			keys: [],
-			redStyle: null,
-			greenStyle: null,
 			checkIfInitialized: function(){
 				if(!self._.initialized){
 					throw new Error("SimpleDotRenderer needs to be initialized before it can be used.");
@@ -36,44 +34,6 @@ define(["mapManager", "ol"], function(mapManagerModule, ol){
 		self.init = function(){
 			if(!self._.initialized){
 				self._.initialized = true;
-
-				var redFill = new ol.style.Fill({
-					color: 'rgba(122,0,0,0.6)'
-				});
-				var redStroke = new ol.style.Stroke({
-						color: '#7a0001',
-						width: 1.25
-				});
-
-				var greenFill = new ol.style.Fill({
-					color: 'rgba(62,122,0,0.6)'
-				});
-				var greenStroke = new ol.style.Stroke({
-						color: '#3e7a00',
-						width: 1.25
-				});
-
-
-				self._.redStyle = new ol.style.Style({
-					image: new ol.style.Circle({
-					    fill: redFill,
-					    stroke: redStroke,
-					    radius: 7
-					}),
-					fill: redFill,
-					stroke: redStroke	
-				});
- 
-				self._.greenStyle = new ol.style.Style({
-					image: new ol.style.Circle({
-					    fill: greenFill,
-					    stroke: greenStroke,
-					    radius: 7
-					}),
-					fill: greenFill,
-					stroke: greenStroke	
-				});
-
 			}
 		};
 
@@ -113,49 +73,62 @@ define(["mapManager", "ol"], function(mapManagerModule, ol){
 				for(var x=0; x<tweets.length; x++){
 					var tweet = tweets[x];	
 
-					var geom = new ol.geom.Point(tweet.point.coordinates)
-					var feature = new ol.Feature({
-						geometry: geom,
-					    	tweet: tweet
-					});
 
 					if(tweet.classification === "pos"){
-						feature.setStyle(self._.greenStyle);
+						feature = L.circleMarker(
+							tweet.point.coordinates,
+							{
+								fill: true,
+								fillColor: 'rgb(62,122,0)',
+								fillOpacity: 0.6,
+
+								stroke: true,
+								color: '#3e7a00',
+								weight: 1.25
+							})
+							.setRadius(7)
+							.bindPopup("<p>" + tweet.original + "</p>");
 					}
 					else if (tweet.classification === "neg"){
-						feature.setStyle(self._.redStyle);
+						feature = L.circleMarker(
+							tweet.point.coordinates,
+							{
+								fill: true,
+								fillColor: 'rgb(122,0,0)',
+								fillOpacity: 0.6,
+
+								stroke: true,
+								color: '#7a0001',
+								weight: 1.25
+							})
+							.setRadius(7)
+							.bindPopup("<p>" + tweet.original + "</p>");
+
 					}
 
 					features.push(feature);
 
 				}
 
-				if("events" in data){	
-					for(var x=0; x<data["events"].length; x++){
-						var event = data["events"][x];
-						var key = self._.mapManager.subscribe(event.event, event.callback);
-						self._.keys.push(key);
-					}
-				}
+				//if("events" in data){	
+				//	for(var x=0; x<data["events"].length; x++){
+				//		var event = data["events"][x];
+				//		var key = self._.mapManager.subscribe(event.event, event.callback);
+				//		self._.keys.push(key);
+				//	}
+				//}
 				
-				var sourceVector = new ol.source.Vector({
-					features: features
-				});
 
-				var layerVector = new ol.layer.Vector({
-					title: "red-green-dots",
-					source: sourceVector
-				});
-
-				self._.mapManager.addLayer(layerVector);
+				var layerGroup = L.layerGroup(features);
+				self._.mapManager.addLayer(layerGroup);
 			}
 
 			return function(){
-				for(var x=0; x<self._.keys.length; x++){
-					self._.mapManager.unsubscribe(self._.keys[x]);
-				}
-				self._.mapManager.removeLayer("red-green-dots");
-			}
+				//for(var x=0; x<self._.keys.length; x++){
+				//	self._.mapManager.unsubscribe(self._.keys[x]);
+				//}
+				self._.mapManager.removeLayer(layerGroup);
+			};
 		};
 	}
 	

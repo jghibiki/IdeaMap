@@ -140,7 +140,7 @@ define(["module", "chain"], function(module, chain){
             else{
                 setTimeout(function(){
                     self.loadModule(name, callback);
-                }, 50);
+                }, 200);
             }
 
         };

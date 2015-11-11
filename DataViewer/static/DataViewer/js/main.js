@@ -20,7 +20,7 @@ requirejs.config({
 
         //third party scripts
         "ko": "third-party/knockout-3.3.0",
-        "ol": "third-party/ol",
+        "leaflet": "third-party/leaflet-src",
 
         //utils
         "chain": "utils/chain",

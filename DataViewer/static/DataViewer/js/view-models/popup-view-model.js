@@ -1,4 +1,4 @@
-define(["ko", "ol", "pipelineManager", "mapManager"], function(ko, ol, PipelineManagerModule, MapManagerModule){
+define(["ko", "leaflet", "pipelineManager", "mapManager"], function(ko, L, PipelineManagerModule, MapManagerModule){
 
 	function PopupViewModel(){
 		var self = this;
@@ -83,14 +83,16 @@ define(["ko", "ol", "pipelineManager", "mapManager"], function(ko, ol, PipelineM
 				self._.container = document.getElementById("popup");
 				self._.closer = document.getElementById("popup-closer");
 
+				/**
 				self._.overlay = new ol.Overlay({
 					element: self._.container,
 					offset: [7,0],
 				});
+				**/
 
-				self._.mapManager.registerOverlay(self._.overlay);
+				// self._.mapManager.registerOverlay(self._.overlay);
 
-				self._.pipelineManager.registerEventListener("singleclick", self.selectTweet);
+				// self._.pipelineManager.registerEventListener("singleclick", self.selectTweet);
 			}
 		};
 
@@ -98,8 +100,8 @@ define(["ko", "ol", "pipelineManager", "mapManager"], function(ko, ol, PipelineM
 			if(self._.shown){
 				self._.shown = false;
 
-				self._.pipelineManger.deregisterEventListener("singleclick", self.selectTweet);
-				self._.mapManager.deregisterOverlay(self._.overlay);
+				// self._.pipelineManger.deregisterEventListener("singleclick", self.selectTweet);
+				// self._.mapManager.deregisterOverlay(self._.overlay);
 			}
 		};
 

@@ -1,4 +1,4 @@
-define(["ko", "ol"], function(ko, ol){
+define(["ko", "leaflet"], function(ko, L){
 
     function MapService(){
         var self = this;
@@ -37,23 +37,19 @@ define(["ko", "ol"], function(ko, ol){
             self._.checkIfDisposed();
             if(!self._.initialized){
 
-                var rootLayer = new ol.layer.Tile({
-                    source: new ol.source.OSM(),
-					title: "root"
+                var layer = L.tileLayer('http://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',{
+                  attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="http://cartodb.com/attributions">CartoDB</a>'
                 });
 
-                self.map = new ol.Map({
-		    controls: [
-		        new ol.control.Zoom(),
-			new ol.control.FullScreen()
-		    ],
-                    layers:[rootLayer],
-                    view: new ol.View({
-                        center: [-10850000, 4500000],
-                        zoom: 5,
-                    })
+                var map = L.map('map', {
+                    scrollWheelZoom: true,
+                    center: [39.09596, -101.95312],
+                    zoom: 4
                 });
 
+                map.addLayer(layer);
+
+                self.map = map;
                 self._.initialized = true;
             }
         }
@@ -82,57 +78,26 @@ define(["ko", "ol"], function(ko, ol){
                 self._.stop();
                 self._.disposed = true;
             }
-        }
-
-        
-        self.getMapTarget = function(){
-            self._.checkAll();
-            return self.map.getTarget();
-        }
-        
-        self.setMapTarget = function(target){
-            self._.checkAll();
-            self.map.setTarget(target);
-        }
-
-        self.removeLayer = function(title){
-            self._.checkAll();
-            var layers = self.map.getLayers().getArray()
-            for(var x=0; x<layers.length; x++){
-                if(x !== 0 && layers[x].get('title') === title){
-                    self.map.removeLayer(layers[x]);
-                }    
-            }
         };
 
         self.addLayer = function(layer){
             self._.checkAll(); 
             self.map.addLayer(layer);
-        }
+        };
 
-	self.subscribe = function(ev, callback){
-		return self.map.on(ev, function(e){
-			feature = self.map.forEachFeatureAtPixel(e.pixel, function(feature, layer){
-				return feature 
-			})
-			callback({
-				feature: feature,
-				event: e
-			});
-		});
-	}
 
-	self.unsubscribe = function(key){
-		self.map.unByKey(key);
-	}
+        self.removeLayer = function(layer){
+            self._.checkAll();
+            self.map.removeLayer(layer);
+        };
 
-	self.registerOverlay = function(overlay){
-		self.map.addOverlay(overlay);
-	};
+    	// self.registerOverlay = function(overlay){
+    	// 	self.map.addOverlay(overlay);
+    	// };
 
-	self.deregisterOverlay = function(overlay){
-		self.map.removeOverlay(overlay);
-	}
+    	// self.deregisterOverlay = function(overlay){
+    	// 	self.map.removeOverlay(overlay);
+    	// }
 
 
     }

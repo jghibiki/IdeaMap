@@ -39,7 +39,7 @@ def classify(tweet):
         original=tweet["original"],
         rating=confidence,
         classification=classification,
-	point = Point(tweet["point"][0], tweet["point"][1]),
+        point=Point(tweet["point"][0], tweet["point"][1])
     )
 
     newTweet.save()

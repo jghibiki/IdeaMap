@@ -1,4 +1,4 @@
-define(["ko", "mapService", "ol"], function(ko, MapServiceModule, ol){
+define(["ko", "mapService"], function(ko, MapServiceModule){
 
     function MapManager(){
         var self = this;
@@ -6,8 +6,7 @@ define(["ko", "mapService", "ol"], function(ko, MapServiceModule, ol){
         self._ = {
             disposed: false,
             mapService: MapServiceModule.get()
-        }
-
+        };
         
         self.dispose = function(){
             if(!self._.disposed){
@@ -16,40 +15,35 @@ define(["ko", "mapService", "ol"], function(ko, MapServiceModule, ol){
 
                 self.disposed = true;
             }
-        }
-
-
-        self.setMapTarget = function(target){
-            self._.mapService.setMapTarget(target);
-        }
-
-        self.getMapTarget = function(){
-            return self._.mapService.getMapTarget();
-        }
+        };
 
         self.removeLayer = function(title){
             self._.mapService.removeLayer(title);
-        }
+        };
 
         self.addLayer= function(layer){
             self._.mapService.addLayer(layer);
-        }
+        };
 
-	self.subscribe = function(ev, callback){
-		return self._.mapService.subscribe(ev, callback);
-	}
+        /*
+    	self.subscribe = function(ev, callback){
+    		return self._.mapService.subscribe(ev, callback);
+    	};
 
-	self.unsubscribe = function(key){
-		self._.mapService.unsubscribe(key);
-	}
+    	self.unsubscribe = function(key){
+    		self._.mapService.unsubscribe(key);
+    	};
+        */
 
-	self.registerOverlay = function(overlay){
-		self._.mapService.registerOverlay(overlay);
-	}
+        /*
+    	self.registerOverlay = function(overlay){
+    		self._.mapService.registerOverlay(overlay);
+    	};
 
-	self.deregisterOverlay = function(overlay){
-		self._.mapService.deregisterOverlay(overlay);
-	}
+    	self.deregisterOverlay = function(overlay){
+    		self._.mapService.deregisterOverlay(overlay);
+    	};
+        */
     }
 
     return {
@@ -59,7 +53,7 @@ define(["ko", "mapService", "ol"], function(ko, MapServiceModule, ol){
         type: function(){
             return MapManager;
         }
-    }
+    };
 
 
 });

@@ -17,14 +17,15 @@
         <!-- css files -->
         <link rel="stylesheet" type="text/css" href="{% static 'DataViewer/css/screen.css' %}">
         <link rel="stylesheet" type="text/css" href="{% static 'DataViewer/css/pure-min.css' %}">
-	<link rel="stylesheet" type="text/css" href="{% static 'DataViewer/css/ol.css' %}">
+    	<link rel="stylesheet" type="text/css" href="{% static 'DataViewer/css/leaflet.css' %}">
     
     </head>
     <body>
         <div class="pure-g fullSize">
             <div class="pure-u-3-4 fullSize">
-                <!-- ko content: contentViewModel -->
-                <!-- /ko -->
+                <div class="fullSize">
+                    <div id="map" class="map"></div>
+                </div>
             </div>
             <div class="pure-u-1-4 fullSize sidePane">
                 <!-- ko content: sidePaneViewModel -->

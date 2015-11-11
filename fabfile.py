@@ -5,6 +5,40 @@ from fabric.contrib.console import confirm
 
 env.hosts = ["jghibiki@streamer01.is-leet.com"]
 
+def deploy():
+    code_dir = "/IdeaMap"
+    django_dir = "/IdeaMap"
+
+    print("Beginning Local Deploy")
+
+    if confirm("Run 'git pull?'", default=False):
+        with lcd(code_dir):
+            local("git pull")
+
+    if confirm("Update Database?", default=False):
+        with cd(django_dir):
+            if confirm("Generate Migrations?", default=False):
+                local("python manage.py makemigrations")
+
+            if confirm("Run Migrations?", default=False):
+                local("python manage.py migrate")
+
+    if confirm("Collect Static Files?", default=False):
+        with cd(django_dir):
+            local("python manage.py collectstatic --noinput")
+
+    if confirm("Generate Analyzer ML cache?", default=False):
+        with cd(django_dir):
+            local("python Analyzer/train.py")
+
+    if confirm("Restart Celery Workers", default= False):
+        with lcd(django_dir):
+            local("sudo systemctl restart celery")
+
+    if confirm("Reload Gunicorn?", default=False):
+        local("sudo systemctl reload ideamap")
+
+    print("Finished Deploying!")
 
 def deploy_remote():
     code_dir = "/IdeaMap"
@@ -30,7 +64,7 @@ def deploy_remote():
 
     if confirm("Generate Analyzer ML cache?", default=False):
         with cd(django_dir):
-            run("python Analyzer/train.py", default=False)
+            run("python Analyzer/train.py")
 
     if confirm("Restart Celery Workers", default= False):
         with cd(django_dir):
