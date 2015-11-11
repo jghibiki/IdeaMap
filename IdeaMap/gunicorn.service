@@ -6,7 +6,7 @@ After=network.target
 PIDFile=/tmp/Ideamap/ideamap.pid
 User=gunicorn
 Group=nginx
-WorkingDirectory=/IdeaMap/source/IdeaMap
+WorkingDirectory=/IdeaMap
 ExecStart=/usr/local/bin/gunicorn --workers 8 --bind unix:/tmp/ideamap.sock --pid=/tmp/IdeaMap/ideamap.pid IdeaMap.wsgi:application 
 ExecReload=/bin/kill -s HUP $MAINPID
 ExecStop=/bin/kill -s TERM $MAINPID

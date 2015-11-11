@@ -8,7 +8,7 @@ env.hosts = ["jghibiki@streamer01.is-leet.com"]
 
 def deploy_remote():
     code_dir = "/IdeaMap"
-    django_dir = "/IdeaMap/source/IdeaMap"
+    django_dir = "/IdeaMap"
 
     print("Beginning Remote Deploy")
 
