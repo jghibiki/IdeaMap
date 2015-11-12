@@ -11,14 +11,16 @@ ExecStart=/IdeaMap/manage.py celeryd_multi start "w1" \
     --pidfile="/var/run/celery/%N.pid" \
     --logfile="/var/log/celery/%N.log" \
     --time-limit=300\
-    --concurrency=8
+    --autoscale=16,3
+    --concurrency=16
 ExecStop=/IdeaMap/manage.py celeryd_multi stop "w1"\
     --pidfile="/var/run/celery/%N.pid"
 ExecReload==/IdeaMap/manage.py celeryd_multi restart "w1" \
     --pidfile="/var/run/celery/%N.pid" \
     --logfile="/var/log/celery/%N.log" \
     --time-limit=300\
-    --concurrency=8
+    --autoscale=16,3
+    --concurrency=16
 
 [Install]
 WantedBy=multi-user.target

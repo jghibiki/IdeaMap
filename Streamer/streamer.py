@@ -159,4 +159,7 @@ if __name__ == '__main__':
     # This line filter Twitter Streams to capture data by the keywords: 'python', 'javascript', 'ruby'
     print "Starting Stream..."
     while(True):
-        stream.filter(locations=location, async=False)
+        try:
+            stream.filter(locations=location, async=False)
+        except Exception, e:
+            print(e)

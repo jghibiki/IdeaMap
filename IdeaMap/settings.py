@@ -166,6 +166,8 @@ CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_RESULT_BACKEND = 'djcelery.backends.database:DatabaseBackend'
+CELERY_POOL_RESTARTS = True
+CELERYD_CONCURRENCY = 16
 
 # Analyzer Config
 ANALYZER_CACHE_DIR = "/tmp/IdeaMap"
