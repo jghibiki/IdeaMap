@@ -87,11 +87,16 @@ WSGI_APPLICATION = 'IdeaMap.wsgi.application'
 DATABASES = {
     'default': {
         #'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'ENGINE': 'django.contrib.gis.db.backends.postgis',
+        #'ENGINE': 'django.contrib.gis.db.backends.postgis',
+        'ENGINE': 'django_db_geventpool.backends.postgis',
         'NAME': 'leet_tweets',
         'USER': 'tweet_is_leet',
         'PASSWORD': 'leet_is_tweet',
         'HOST': 'localhost',
+        'CONN_MAX_AGE': 0,
+        'OPTIONS': {
+            'MAX_CONNS': 20
+        }
     }
 }
 
@@ -167,7 +172,6 @@ CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_RESULT_BACKEND = 'djcelery.backends.database:DatabaseBackend'
 CELERY_POOL_RESTARTS = True
-CELERYD_CONCURRENCY = 16
 
 # Analyzer Config
 ANALYZER_CACHE_DIR = "/tmp/IdeaMap"

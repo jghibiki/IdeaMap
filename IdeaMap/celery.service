@@ -7,20 +7,9 @@ Type=forking
 User=root
 Group=root
 WorkingDirectory=/IdeaMap
-ExecStart=/IdeaMap/manage.py celeryd_multi start "w1" \
-    --pidfile="/var/run/celery/%N.pid" \
-    --logfile="/var/log/celery/%N.log" \
-    --time-limit=300\
-    --autoscale=16,3
-    --concurrency=16
-ExecStop=/IdeaMap/manage.py celeryd_multi stop "w1"\
-    --pidfile="/var/run/celery/%N.pid"
-ExecReload==/IdeaMap/manage.py celeryd_multi restart "w1" \
-    --pidfile="/var/run/celery/%N.pid" \
-    --logfile="/var/log/celery/%N.log" \
-    --time-limit=300\
-    --autoscale=16,3
-    --concurrency=16
+ExecStart=/IdeaMap/celeryctl start
+ExecStop=/IdeaMap/celeryctl stop
+ExecReload=/IdeaMap/celeryctl restart
 
 [Install]
 WantedBy=multi-user.target

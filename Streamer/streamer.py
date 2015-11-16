@@ -19,6 +19,7 @@ from django.conf import settings  # noqa
 from Analyzer.tasks import classify
 
 count = 0
+last_count = 0
 datestamp = datetime.datetime.utcnow() + datetime.timedelta(0, 1)
 
 # Variables that contains the user credentials to access Twitter API
@@ -46,7 +47,9 @@ class StreamListener(tweepy.StreamListener):
                         datestamp = datetime.datetime.utcnow() + datetime.timedelta(0,60)
 
                         global count
-                        print " Total Tweets: " + str(count)
+                        global last_count
+                        print " Total Tweets: " + str(count) + " This minute: " + str(count - last_count)
+                        last_count = count
 
                     count += 1
 

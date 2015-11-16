@@ -1,0 +1,65 @@
+#!/bin/bash
+
+mode="$1"
+echo "$mode"
+
+if [ $mode = "start" ]; then
+    ./manage.py celeryd_multi start "w1" \
+    -P gevent \
+    --pidfile="/var/run/celery/%N.pid" \
+    --logfile="/var/log/celery/%N.log" \
+    --time-limit=300\
+    --autoscale=16,3
+
+    ./manage.py celeryd_multi start "w2" \
+    -P gevent \
+    --pidfile="/var/run/celery/%N.pid" \
+    --logfile="/var/log/celery/%N.log" \
+    --time-limit=300\
+    --autoscale=16,3
+
+    ./manage.py celeryd_multi start "w3" \
+    -P gevent \
+    --pidfile="/var/run/celery/%N.pid" \
+    --logfile="/var/log/celery/%N.log" \
+    --time-limit=300\
+    --autoscale=16,3
+
+elif [ $mode = "stop" ]; then
+    ./manage.py celeryd_multi stop "w1"\
+    --pidfile="/var/run/celery/%N.pid"
+
+    ./manage.py celeryd_multi stop "w2"\
+    --pidfile="/var/run/celery/%N.pid"
+
+    ./manage.py celeryd_multi stop "w3"\
+    --pidfile="/var/run/celery/%N.pid"
+
+elif [ $mode = "restart" ]; then
+    ./manage.py celeryd_multi restart "w1" \
+    -P gevent \
+    --pidfile="/var/run/celery/%N.pid" \
+    --logfile="/var/log/celery/%N.log" \
+    --time-limit=300\
+    --autoscale=16,3
+
+    ./manage.py celeryd_multi restart "w2" \
+    -P gevent \
+    --pidfile="/var/run/celery/%N.pid" \
+    --logfile="/var/log/celery/%N.log" \
+    --time-limit=300\
+    --autoscale=16,3
+
+    ./manage.py celeryd_multi restart "w3" \
+    -P gevent \
+    --pidfile="/var/run/celery/%N.pid" \
+    --logfile="/var/log/celery/%N.log" \
+    --time-limit=300\
+    --autoscale=16,3
+
+elif [ $mode = status ]; then 
+    tail -f /var/log/celery/w1.log -f /var/log/celery/w2.log -f /var/log/celery/w3.log
+
+else
+    echo "Must provide an argument of either start, stop, or restart."
+fi
