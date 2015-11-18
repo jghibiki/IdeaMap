@@ -7,6 +7,10 @@ from rest_framework.views import APIView
 from django.contrib.auth.models import User, Group
 from .serializers import *
 from Core.models import ProcessedTweet, Filter
+from django.db.models import Avg
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import redirect
+from django.conf import settings
 
 class Filter_List(APIView):
     """
@@ -60,6 +64,9 @@ class Filter_Detail(APIView):
     Retrieve, update, or delete a filter innstance.
     """
     def get(self, request, pk):
+        if not request.user.is_authenticated():
+            return redirect('%s?next=%s' % (settings.LOGIN_URL, request.path))
+
         try:
             filter = Filter.objects.get(pk=pk)
         except Filter.DoesNotExsist:
@@ -69,6 +76,9 @@ class Filter_Detail(APIView):
         return Response(serializer.data)
 
     def post(self, request):
+        if not request.user.is_authenticated():
+            return redirect('%s?next=%s' % (settings.LOGIN_URL, request.path))
+
         try:
             filter = Filter.objects.get(pk=pk)
         except Filter.DoesNotExsist:
@@ -84,6 +94,9 @@ class Filter_Detail(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, pk):
+        if not request.user.is_authenticated():
+            return redirect('%s?next=%s' % (settings.LOGIN_URL, request.path))
+
         try:
             filter = Filter.objects.get(pk=pk)
         except Filter.DoesNotExsist:
@@ -99,7 +112,11 @@ class Tweet_List(APIView):
     GET requests paginated with '?page=<page>'
     """
     def get(self, request):
-        tweets = ProcessedTweet.objects.all()
+
+        if not request.user.is_authenticated():
+            return redirect('%s?next=%s' % (settings.LOGIN_URL, request.path))
+
+        tweets = ProcessedTweet.objects.order_by("-created_date").all()
         paginator = Paginator(tweets, 2000)
         page = request.GET.get('page')
 
@@ -109,6 +126,14 @@ class Tweet_List(APIView):
             paginated_tweets = paginator.page(1)
         except EmptyPage:
             paginated_tweets = paginator.page(paginator.num_pages)
+        except: 
+            paginated_tweets = paginator.page(1)
 
         serializer = ProcessedTweetSerializer(paginated_tweets, many=True)
         return Response(serializer.data)
+
+def get_state_averages():
+    states = []
+    for state in State.objects.all():
+        avg = state.counties.select_related("tweets_rating").aggregate(Avg("tweets_rating")) 
+        states.append(state, avg)

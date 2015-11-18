@@ -47,7 +47,7 @@ define(["ko", "chain", "moduleManager", "module", "filterWorkflowManager"], func
 					.cc(function(context, abort, next){
 						console.log("Loading new tweets.");
 						$.ajax({
-							url: "/api/tweets/?page=0",
+							url: "/api/tweets/?page=1",
 							type: "GET",
 							dataType: "json",
 							success: function(response){

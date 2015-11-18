@@ -93,7 +93,7 @@ class StreamListener(tweepy.StreamListener):
                         "created_date": data["created_at"],
                         "text": data["text"],
                         "original": data["original"],
-                        "point": [coord.y, coord.x]
+                        "point": [coord.x, coord.y]
                     })
 
         return True

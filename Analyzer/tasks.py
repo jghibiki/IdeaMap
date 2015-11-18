@@ -6,7 +6,7 @@ from dateutil import parser
 import time, signal, datetime
 from sklearn.externals import joblib
 from celery import shared_task
-from Core.models import Tweet, ProcessedTweet
+from Core.models import ProcessedTweet, County
 from django.conf import settings
 from django.contrib.gis.geos import Point
 from django_db_geventpool.utils import close_connection
@@ -28,6 +28,12 @@ if __name__ != "__main__":
 @shared_task
 @close_connection
 def classify(tweet):
+    point = Point(tweet["point"][0], tweet["point"][1], srid=4326)
+
+    try:
+        county = County.objects.get(geom__intersects=point)
+    except:
+        return ("Bad point, not in us boundaries.")
 
     analyze_start = datetime.datetime.utcnow()
     test_vectors = vectorizer.transform([tweet["text"]])
@@ -45,7 +51,8 @@ def classify(tweet):
         original=tweet["original"],
         rating=confidence,
         classification=classification,
-        point=Point(tweet["point"][0], tweet["point"][1])
+        point=point,
+        county=county
     )
 
     newTweet.save()

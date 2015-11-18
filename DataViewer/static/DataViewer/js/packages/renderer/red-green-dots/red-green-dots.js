@@ -76,7 +76,7 @@ define(["mapManager", "leaflet"], function(mapManagerModule, L){
 
 					if(tweet.classification === "pos"){
 						feature = L.circleMarker(
-							tweet.point.coordinates,
+							L.latLng(tweet.point.coordinates[1], tweet.point.coordinates[0]),
 							{
 								fill: true,
 								fillColor: 'rgb(62,122,0)',
@@ -91,7 +91,7 @@ define(["mapManager", "leaflet"], function(mapManagerModule, L){
 					}
 					else if (tweet.classification === "neg"){
 						feature = L.circleMarker(
-							tweet.point.coordinates,
+							L.latLng(tweet.point.coordinates[1], tweet.point.coordinates[0]),
 							{
 								fill: true,
 								fillColor: 'rgb(122,0,0)',

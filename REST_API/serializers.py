@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User, Group
 from rest_framework import serializers, models
-from Core.models import Tweet, ProcessedTweet, County, Filter
+from Core.models import ProcessedTweet, County, Filter, State
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -29,9 +29,11 @@ class ProcessedTweetSerializer(serializers.ModelSerializer):
             'original', 
             'rating',
             'classification',
-            'point')
+            'point',
+            'county'
+        )
 
-class CountySerializer(serializers.HyperlinkedModelSerializer):
+class CountySerializer(serializers.ModelSerializer):
     class Meta:
         model = County
         fields = (

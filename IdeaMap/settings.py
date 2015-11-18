@@ -95,7 +95,7 @@ DATABASES = {
         'HOST': 'localhost',
         'CONN_MAX_AGE': 0,
         'OPTIONS': {
-            'MAX_CONNS': 20
+            'MAX_CONNS': 10
         }
     }
 }
@@ -117,6 +117,9 @@ USE_TZ = True
 # Sets the default login redirect url
 LOGIN_REDIRECT_URL = '/'
 
+# sets the default login path
+LOGIN_URL = '/auth/login'
+
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
@@ -133,7 +136,7 @@ REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
     # or allow read-only access for unauthenticated users.
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAdminUser'
+        #'rest_framework.permissions.IsAdminUser'
     ]
 }
 

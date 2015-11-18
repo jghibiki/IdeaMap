@@ -22,7 +22,7 @@ urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     url(r'^viewer/', include('DataViewer.urls', namespace="viewer")),
     url(r'^api/', include('REST_API.urls', namespace="api")),
-    url(r'^api/auth/',
+    url(r'^auth/',
         include(
             'rest_framework.urls',
             namespace='rest_framework')),

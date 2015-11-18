@@ -1,4 +1,5 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+from django.conf import settings
 
 # Create your views here.
 
@@ -12,6 +13,8 @@ def index(request):
 
 
 def map(request):
+    if not request.user.is_authenticated():
+        return redirect('%s?next=%s' % (settings.LOGIN_URL, request.path))
     return render(
         request,
         "DataViewer/map.html",
