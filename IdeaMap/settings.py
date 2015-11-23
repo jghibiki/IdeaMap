@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 """
 Django settings for IdeaMap project.
 
@@ -20,7 +21,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '(a5m#2z6wou!y!8tt_pc5heuk#kf_ah!5-q5pmob#&@x%oq9l%'
+SECRET_KEY = 'xk!*xx^008xbta#$1)c1um=26$!b^2o1&43r97183pj4)(kwg5'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -175,6 +176,39 @@ CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_RESULT_BACKEND = 'djcelery.backends.database:DatabaseBackend'
 CELERY_POOL_RESTARTS = True
+CELERY_IMPORTS = (
+    "Analyzer.tasks",
+    "Core.tasks"
+)
+
+
+from celery.schedules import crontab
+
+CELERYBEAT_SCHEDULE_FILENAME = "/var/cache/celery/beat-schedule"
+CELERYBEAT_SCHEDULE = {
+    'averages-hourly': {
+        'task': 'Core.tasks.generate_county_averages',
+        'schedule': crontab(minute="0", hour="*/1"),
+        'args': (60, 0)
+    },
+    'averages-daily': {
+        'task': 'Core.tasks.generate_county_averages',
+        'schedule': crontab(minute="0", hour="0"),
+        'args': (60*24, 1)
+    },
+    'averages-weekly': {
+        'task': 'Core.tasks.generate_county_averages',
+        'schedule': crontab(minute="0", hour="0", day_of_week="0"),
+        'args': (60*24*7, 2)
+    },
+    'averages-monthly': {
+        'task': 'Core.tasks.generate_county_averages',
+        'schedule': crontab(minute="0", hour="0", day_of_month="1"),
+        'args': (60*24*7*32, 3)
+    },
+}
+
+CELERY_TIMEZONE = 'UTC'
 
 # Analyzer Config
 ANALYZER_CACHE_DIR = "/tmp/IdeaMap"

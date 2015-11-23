@@ -1,5 +1,13 @@
 from __future__ import absolute_import
 
+# bootstap/patch the database connections
+import gevent
+import gevent.monkey
+gevent.monkey.patch_all()
+
+import psycogreen.gevent
+psycogreen.gevent.patch_psycopg()
+
 import os
 from psycogreen.gevent import patch_psycopg
 from celery import Celery

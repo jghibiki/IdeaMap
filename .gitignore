@@ -79,3 +79,4 @@ source/**/*.yml
 *.cpg
 *.dbf
 *.zip
+*/data/

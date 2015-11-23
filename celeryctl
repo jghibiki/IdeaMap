@@ -1,65 +1,158 @@
 #!/bin/bash
 
 mode="$1"
-echo "$mode"
+extra="${2:-info}"
+#export DJANGO_SETTINGS_MODULE="IdeaMap"
 
-if [ $mode = "start" ]; then
-    ./manage.py celeryd_multi start "w1" \
+if [ "$mode" = "start" ]; then
+    
+    mkdir -p /var/run/celery
+    mkdir -p /var/log/celery
+
+    echo "=========================="
+    echo " Starting Celery Worker 1"
+    echo "=========================="
+
+    celery -A IdeaMap worker \
+    -n "w1@%h" \
+    -E \
     -P gevent \
-    --pidfile="/var/run/celery/%N.pid" \
-    --logfile="/var/log/celery/%N.log" \
+    -l $extra \
+    --pidfile="/var/run/celery/w1.pid" \
+    --logfile="/var/log/celery/w1.log" \
     --time-limit=300\
-    --autoscale=16,3
+    --autoscale=16,3 \
+    --detach
 
-    ./manage.py celeryd_multi start "w2" \
+    echo 
+    echo
+    echo "=========================="
+    echo " Starting Celery Worker 2"
+    echo "=========================="
+
+    celery -A IdeaMap worker \
+    -n "w2@%h" \
+    -E \
     -P gevent \
-    --pidfile="/var/run/celery/%N.pid" \
-    --logfile="/var/log/celery/%N.log" \
-    --time-limit=300\
-    --autoscale=16,3
+    -l $extra \
+    --pidfile="/var/run/celery/w2.pid" \
+    --logfile="/var/log/celery/w2.log" \
+    --time-limit=300 \
+    --autoscale=16,3 \
+    --detach
 
-    ./manage.py celeryd_multi start "w3" \
+    echo 
+    echo
+    echo "=========================="
+    echo " Starting Celery Worker 3"
+    echo "=========================="
+
+    celery -A IdeaMap worker \
+    -n "w3@%h" \
+    -E \
     -P gevent \
-    --pidfile="/var/run/celery/%N.pid" \
-    --logfile="/var/log/celery/%N.log" \
-    --time-limit=300\
-    --autoscale=16,3
+    -l $extra \
+    --pidfile="/var/run/celery/w3.pid" \
+    --logfile="/var/log/celery/w3.log" \
+    --time-limit=300 \
+    --autoscale=16,3 \
+    --detach
 
-elif [ $mode = "stop" ]; then
-    ./manage.py celeryd_multi stop "w1"\
+
+    echo 
+    echo
+    echo "======================"
+    echo " Starting Celery Beat "
+    echo "======================"
+    
+    celery -A IdeaMap beat \
+    -l debug \
+    --pidfile="/var/run/celery/beat.pid" \
+    --logfile="/var/log/celery/beat.log" \
+    --detach
+
+elif [ "$mode" = "stop" ]; then
+
+    echo "=========================="
+    echo " Stopping Celery Worker 1"
+    echo "=========================="
+    celery -A IdeaMap multi stop "w1@%h" "w2@%h" "w3@%h" \
     --pidfile="/var/run/celery/%N.pid"
 
-    ./manage.py celeryd_multi stop "w2"\
-    --pidfile="/var/run/celery/%N.pid"
+    #echo 
+    #echo
+    #echo "=========================="
+    #echo " Stopping Celery Worker 2"
+    #echo "=========================="
 
-    ./manage.py celeryd_multi stop "w3"\
-    --pidfile="/var/run/celery/%N.pid"
+    #celeryd_multi stop "w2"\
+    #--pidfile="/var/run/celery/%N.pid"
 
-elif [ $mode = "restart" ]; then
-    ./manage.py celeryd_multi restart "w1" \
-    -P gevent \
-    --pidfile="/var/run/celery/%N.pid" \
-    --logfile="/var/log/celery/%N.log" \
-    --time-limit=300\
-    --autoscale=16,3
+    #echo 
+    #echo
+    #echo "=========================="
+    #echo " Stopping Celery Worker 3"
+    #echo "=========================="
 
-    ./manage.py celeryd_multi restart "w2" \
-    -P gevent \
-    --pidfile="/var/run/celery/%N.pid" \
-    --logfile="/var/log/celery/%N.log" \
-    --time-limit=300\
-    --autoscale=16,3
+    #celeryd_multi stop "w3"\
+    #--pidfile="/var/run/celery/%N.pid"
 
-    ./manage.py celeryd_multi restart "w3" \
-    -P gevent \
-    --pidfile="/var/run/celery/%N.pid" \
-    --logfile="/var/log/celery/%N.log" \
-    --time-limit=300\
-    --autoscale=16,3
+    echo 
+    echo
+    echo "======================"
+    echo " Stopping Celery Beat"
+    echo "======================"
 
-elif [ $mode = status ]; then 
+    PID=`cat /var/run/celery/beat.pid`
+    echo "TERM -> $PID"
+    kill -s TERM "$PID"
+
+elif [ "$mode" = "restart" ]; then
+
+    echo "============================"
+    echo " Restarting Celery Worker 1"
+    echo "============================"
+
+
+    pid=`cat /var/run/celery/w1.pid`
+    echo "hup -> $pid"
+    kill -s hup "$pid"
+
+    echo 
+    echo
+    echo "============================"
+    echo " Restarting Celery Worker 2"
+    echo "============================"
+
+    pid=`cat /var/run/celery/w2.pid`
+    echo "hup -> $pid"
+    kill -s hup "$pid"
+
+    echo 
+    echo
+    echo "============================"
+    echo " Restarting Celery Worker 3"
+    echo "============================"
+
+    pid=`cat /var/run/celery/w3.pid`
+    echo "hup -> $pid"
+    kill -s hup "$pid"
+
+    echo 
+    echo
+    echo "========================"
+    echo " Restarting Celery Beat"
+    echo "========================"
+
+    PID=`cat /var/run/celery/beat.pid`
+    echo "HUP -> $PID"
+    kill -s HUP "$PID"
+
+elif [ "$mode" = "status" ]; then 
     tail -f /var/log/celery/w1.log -f /var/log/celery/w2.log -f /var/log/celery/w3.log
 
+elif [ "$mode" = "flower" ]; then
+    celery -A IdeaMap flower
 else
     echo "Must provide an argument of either start, stop, or restart."
 fi
