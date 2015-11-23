@@ -1,0 +1,15 @@
+[Unit]
+Description=Celery workers
+After=network.target
+
+[Service]
+Type=forking
+User=root
+Group=root
+WorkingDirectory=/IdeaMap
+ExecStart=/IdeaMap/celeryctl start
+ExecStop=/IdeaMap/celeryctl stop
+ExecReload=/IdeaMap/celeryctl restart
+
+[Install]
+WantedBy=multi-user.target

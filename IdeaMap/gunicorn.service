@@ -1,0 +1,15 @@
+[Unit]
+Description=IdeaMap Gunicorn Daemon
+After=network.target
+
+[Service]
+PIDFile=/tmp/Ideamap/ideamap.pid
+User=gunicorn
+Group=nginx
+WorkingDirectory=/IdeaMap
+ExecStart=/usr/local/bin/gunicorn --bind unix:/tmp/ideamap.sock --pid=/tmp/IdeaMap/ideamap.pid --config /IdeaMap/IdeaMap/gunicorn.conf IdeaMap.wsgi:application 
+ExecReload=/bin/kill -s HUP $MAINPID
+ExecStop=/bin/kill -s TERM $MAINPID
+
+[Install]
+WantedBy=multi-user.target

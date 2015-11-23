@@ -70,3 +70,13 @@ tweetraining.csv
 *.swp
 
 source/**/*.yml
+
+*.shx
+*.shp
+*.sp.ea.iso.xml
+*.shp.xml
+*.prj
+*.cpg
+*.dbf
+*.zip
+*/data/
